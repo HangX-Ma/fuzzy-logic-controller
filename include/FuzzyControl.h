@@ -28,6 +28,14 @@
 
 namespace fc {
     class Membership;
+
+    enum class membershipType {
+        Rectangle,
+        Triangle,
+        Trapezoid,
+        Gaussian,
+    };
+
     class FuzzyController {
         public:
             FuzzyController(scalar err_max, scalar dev_err_max, scalar u_max);
@@ -51,7 +59,7 @@ namespace fc {
 
             void setResolution(int16_t resolution);
 
-            void setMembershipType(memebershipType type);
+            void setMembershipType(membershipType type);
 
         private:
             /**
@@ -69,7 +77,7 @@ namespace fc {
              * @param [in] scale expand or narrow membership function basic value with a specific step
              * @return premise degree and index of effective membership
              */
-            std::vector<std::pair<scalar, uint8_t>> _fuzzify(memebershipType type, scalar input, scalar* param);
+            std::vector<std::pair<scalar, uint8_t>> _fuzzify(membershipType type, scalar input, scalar* param);
 
             
             /**
@@ -108,17 +116,9 @@ namespace fc {
                                          {NS,ZO,PS,PM,PM,PM,PB},
                                          {ZO,ZO,PM,PM,PM,PB,PB}};
             std::shared_ptr<fc::Membership> m_memFunc;
-            memebershipType membershipFuncSel = memebershipType::Triangle;
+            membershipType membershipFuncSel = membershipType::Triangle;
             int16_t m_resolution;
     };
-
-    enum class memebershipType {
-        Rectangle,
-        Triangle,
-        Trapezoid,
-        Gaussian,
-    };
-    
 }
 
 

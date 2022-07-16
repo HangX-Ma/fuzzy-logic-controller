@@ -46,7 +46,7 @@ namespace fc
 
             static bool isLessOrEqual(scalar a, scalar b, scalar threshold = eps);
 
-            static scalar Operation::toScalar(const std::string& x);
+            static scalar toScalar(const std::string& x);
     };
 }
 
@@ -85,33 +85,33 @@ namespace fc {
         return not (x != x || x == fc::inf || x == -fc::inf);
     }
 
-    inline bool Operation::isEqual(scalar a, scalar b, scalar macheps) {
-        return a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b)) 
+    inline bool Operation::isEqual(scalar a, scalar b, scalar threshold) {
+        return a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b) < threshold) 
         || (a != a && b != b);
     }
 
 
     inline bool Operation::isGreaterThan(scalar a, scalar b, scalar threshold) {
-        return !(a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b)) 
-        || (a != a && b != b)) < threshold || a > b;
+        return !(a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b) < threshold) 
+        || (a != a && b != b)) || a > b;
     }
 
 
     inline bool Operation::isGreaterOrEqual(scalar a, scalar b, scalar threshold) {
-        return a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b)) 
-        || (a != a && b != b) < threshold || a > b;
+        return a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b) < threshold) 
+        || (a != a && b != b) || a > b;
     }
 
 
     inline bool Operation::isLessthan(scalar a, scalar b, scalar threshold) {
-        return !(a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b)) 
-        || (a != a && b != b)) < threshold || a < b;
+        return !(a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b) < threshold)
+        || (a != a && b != b)) || a < b;
     }
 
 
     inline bool Operation::isLessOrEqual(scalar a, scalar b, scalar threshold) {
-        return a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b)) 
-        || (a != a && b != b) < threshold || a < b;
+        return a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b) < threshold)
+        || (a != a && b != b) || a < b;
     }
 
     inline scalar Operation::toScalar(const std::string& x) {
