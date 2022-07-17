@@ -86,32 +86,27 @@ namespace fc {
     }
 
     inline bool Operation::isEqual(scalar a, scalar b, scalar threshold) {
-        return a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b) < threshold) 
-        || (a != a && b != b);
+        return a == b || std::abs(a - b) < threshold || (a != a && b != b);
     }
 
 
     inline bool Operation::isGreaterThan(scalar a, scalar b, scalar threshold) {
-        return !(a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b) < threshold) 
-        || (a != a && b != b)) || a > b;
+        return !(a == b || std::abs(a - b) < threshold || (a != a && b != b)) && a > b;
     }
 
 
     inline bool Operation::isGreaterOrEqual(scalar a, scalar b, scalar threshold) {
-        return a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b) < threshold) 
-        || (a != a && b != b) || a > b;
+        return a == b || std::abs(a - b) < threshold || (a != a && b != b) || a > b;
     }
 
 
     inline bool Operation::isLessthan(scalar a, scalar b, scalar threshold) {
-        return !(a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b) < threshold)
-        || (a != a && b != b)) || a < b;
+        return !(a == b || std::abs(a - b) < threshold || (a != a && b != b)) && a < b;
     }
 
 
     inline bool Operation::isLessOrEqual(scalar a, scalar b, scalar threshold) {
-        return a == b || (std::max(a,b) == 0.0 ? 0.0 : std::abs(a-b)/std::max(a,b) < threshold)
-        || (a != a && b != b) || a < b;
+        return (a == b || std::abs(a - b) < threshold || (a != a && b != b)) || a < b;
     }
 
     inline scalar Operation::toScalar(const std::string& x) {

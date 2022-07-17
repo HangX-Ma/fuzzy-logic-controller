@@ -42,7 +42,6 @@ namespace fc {
             ~FuzzyController();
             static constexpr int N = 7;
         public:
-
             scalar algo();
 
             scalar algo(scalar goal, scalar curr);
@@ -53,12 +52,24 @@ namespace fc {
 
             void set_err_dev_param(scalar* err_dev_param);
 
+            void set_u_param(scalar* u_param);
+
             void setGoal(scalar goal);
 
             void setCurrent(scalar curr);
 
+            void showInfo();
+
+            /**
+             * @brief Area size calculation resolution
+             * @param [in] resolution 16 bits integer type
+             */
             void setResolution(int16_t resolution);
 
+            /**
+             * @brief Set the Membership Type object
+             * @param [in] type membership function type, Triangle, Rectangle, Trapzoid, Gaussian
+             */
             void setMembershipType(membershipType type);
 
         private:
@@ -73,30 +84,36 @@ namespace fc {
             /**
              * @brief Fuzzify the input value using membership function
              * @param [in] input fuzzification target
-             * @param [in] type membership function type, Triangle, Rectangle, Trapzoid, Gaussian
-             * @param [in] scale expand or narrow membership function basic value with a specific step
+             * @param [in] param universal discourse range for current membership function 
              * @return premise degree and index of effective membership
              */
-            std::vector<std::pair<scalar, uint8_t>> _fuzzify(membershipType type, scalar input, scalar* param);
+            std::vector<std::pair<scalar, uint8_t>> _fuzzify(scalar input, scalar* param);
 
             
             /**
              * @brief Defuzzify and inference the conclusion for action using `COG`
-             * @param input receive data from `_fuzzify()` function
-             * @return output
+             * @param [in] pack receive data from `_fuzzify()` function
+             * @return num and den
              */
-            scalar _defuzzify(std::vector<std::pair<scalar, uint8_t>> &input1, std::vector<std::pair<scalar, uint8_t>> &input2);
+            std::pair<scalar, scalar> _defuzzify(std::vector<std::pair<scalar, uint8_t>> &pack, scalar* param);
 
-
-            scalar _getArea(scalar chopOff_premise);
+            /**
+             * @brief get the centroid parameters for defuzzification process
+             * @param [in] chopOff_premise Minimum operation is used to get the premise degree
+             * @param [in] index indicate which universal discourse is determined
+             * @param [in] param universal discourse range for current membership function 
+             * @return num, den
+             */
+            std::pair<scalar, scalar> _getCentroidParam(scalar chopOff_premise, uint8_t index, scalar* param);
 
         private:
             scalar m_err;
             scalar m_err_last;
-            scalar m_dev_err;
+            scalar m_err_dev;
+
             scalar m_err_max;
-            scalar m_dev_err_max;
-            scalar m_u_max;
+            scalar m_err_dev_max; // derivative error
+            scalar m_u_max; // output maximum limitation
 
             scalar m_goal;
             scalar m_curr;
@@ -105,8 +122,10 @@ namespace fc {
             scalar Kd_e;
             scalar Kp_u;
 
+             // This parameters are consistant in membership functions' input parameters times N
             scalar* m_err_param;
             scalar* m_err_dev_param;
+            scalar* m_u_param;
 
             int8_t m_ruleMatrix[N][N] = {{NB,NB,NM,NM,NS,ZO,ZO},
                                          {NB,NB,NM,NS,NS,ZO,PS},
@@ -117,6 +136,7 @@ namespace fc {
                                          {ZO,ZO,PM,PM,PM,PB,PB}};
             std::shared_ptr<fc::Membership> m_memFunc;
             membershipType membershipFuncSel = membershipType::Triangle;
+
             int16_t m_resolution;
     };
 }

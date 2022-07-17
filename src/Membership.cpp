@@ -37,6 +37,7 @@ namespace fc {
 
         if (Operation::isLessthan(x, vertexA) || Operation::isGreaterThan(x, vertexC)) {
             return m_height * 0.0;
+
         } // outside the membership area
 
         if (Operation::isEqual(x, vertexB)) {
