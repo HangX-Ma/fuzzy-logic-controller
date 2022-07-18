@@ -20,15 +20,21 @@ int main (int argc,char *argv[]) {
                             {NS,ZO,PS,PM,PM,PM,PB},
                             {ZO,ZO,PM,PM,PM,PB,PB}};
 
-    fc::scalar e_mf_paras[21]={-3,-3,-2,-3,-2,-1,-2,-1,0,-1,0,1,0,1,2,1,2,3,2,3,3};
-    fc::scalar de_mf_paras[21]={-3,-3,-2,-3,-2,-1,-2,-1,0,-1,0,1,0,1,2,1,2,3,2,3,3};
-    fc::scalar u_mf_paras[21]={-3,-3,-2,-3,-2,-1,-2,-1,0,-1,0,1,0,1,2,1,2,3,2,3,3};
+    // input parameter number is [N x M]
+    std::vector<fc::scalar> e_mf_paras {-3,-3,-2,-3,-2,-1,-2,-1,0,-1,0,1,0,1,2,1,2,3,2,3,3};
+    std::vector<fc::scalar> de_mf_paras {-3,-3,-2,-3,-2,-1,-2,-1,0,-1,0,1,0,1,2,1,2,3,2,3,3};
+    std::vector<fc::scalar> u_mf_paras {-3,-3,-2,-3,-2,-1,-2,-1,0,-1,0,1,0,1,2,1,2,3,2,3,3};
 
     fc::FuzzyController* fzc = new fc::FuzzyController(100,65,50);
-    fzc->setMembershipType(fc::membershipType::Triangle);
+
+    fzc->setMembershipType_err(fc::membershipType::Triangle);
+    fzc->setMembershipType_err_dev(fc::membershipType::Triangle);
+    fzc->setMembershipType_u(fc::membershipType::Triangle);
+
     fzc->set_err_param(e_mf_paras);
     fzc->set_err_dev_param(de_mf_paras);
     fzc->set_u_param(u_mf_paras);
+
     fzc->setFuzzyRule(ruleMatrix);
     fzc->setResolution(100);
     fzc->showInfo();

@@ -28,7 +28,6 @@ namespace fc {
     typedef double scalar;
 #endif
 
-
 #ifdef __GNUC__
 #define FC_UNUSED_VAL __attribute__((unused))
 #else

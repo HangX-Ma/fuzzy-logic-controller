@@ -26,9 +26,13 @@
 #define PM 2
 #define PB 3
 
-namespace fc {
-    class Membership;
 
+
+namespace fc {
+
+    typedef std::pair<scalar, uint8_t> fuzzifyPackType;
+    typedef std::pair<scalar, scalar> defuzzifyPackType;
+    typedef std::vector<scalar> scalar_vec;
     enum class membershipType {
         Rectangle,
         Triangle,
@@ -36,6 +40,12 @@ namespace fc {
         Gaussian,
     };
 
+    enum class ErrorStatus {
+        ERROR = 0,
+        SUCCESS = !ERROR,
+    };
+
+    class Membership;
     class FuzzyController {
         public:
             FuzzyController(scalar err_max, scalar dev_err_max, scalar u_max);
@@ -48,11 +58,17 @@ namespace fc {
 
             void setFuzzyRule(int8_t rule[N][N]);
 
-            void set_err_param(scalar* err_param);
+            void set_err_param(std::vector<scalar>& err_param);
 
-            void set_err_dev_param(scalar* err_dev_param);
+            void set_err_dev_param(std::vector<scalar>& err_dev_param);
 
-            void set_u_param(scalar* u_param);
+            void set_u_param(std::vector<scalar>& u_param);
+
+            void setMembershipType_err(membershipType type);
+
+            void setMembershipType_err_dev(membershipType type);
+
+            void setMembershipType_u(membershipType type);
 
             void setGoal(scalar goal);
 
@@ -87,7 +103,7 @@ namespace fc {
              * @param [in] param universal discourse range for current membership function 
              * @return premise degree and index of effective membership
              */
-            std::vector<std::pair<scalar, uint8_t>> _fuzzify(scalar input, scalar* param);
+            std::vector<fuzzifyPackType> _fuzzify(membershipType type, scalar input, std::vector<scalar>& param);
 
             
             /**
@@ -95,7 +111,7 @@ namespace fc {
              * @param [in] pack receive data from `_fuzzify()` function
              * @return num and den
              */
-            std::pair<scalar, scalar> _defuzzify(std::vector<std::pair<scalar, uint8_t>> &pack, scalar* param);
+            defuzzifyPackType _defuzzify(membershipType type, std::vector<fuzzifyPackType> &pack, std::vector<scalar>& param);
 
             /**
              * @brief get the centroid parameters for defuzzification process
@@ -104,7 +120,16 @@ namespace fc {
              * @param [in] param universal discourse range for current membership function 
              * @return num, den
              */
-            std::pair<scalar, scalar> _getCentroidParam(scalar chopOff_premise, uint8_t index, scalar* param);
+            defuzzifyPackType _getCentroidParam(membershipType type, scalar chopOff_premise, uint8_t index, std::vector<scalar>& param);
+
+            /**
+             * @brief Check membership function type required parameters number whether equal to input parameter number or not.
+             * @param type membership function type
+             * @param param membership function parameter list
+             * @retval ERROR 
+             * @retval SUCCESS 
+             */
+            ErrorStatus _paramCheck(membershipType type, std::vector<scalar>& param);
 
         private:
             scalar m_err;
@@ -123,9 +148,9 @@ namespace fc {
             scalar Kp_u;
 
              // This parameters are consistant in membership functions' input parameters times N
-            scalar* m_err_param;
-            scalar* m_err_dev_param;
-            scalar* m_u_param;
+            std::vector<scalar> m_err_param;
+            std::vector<scalar> m_err_dev_param;
+            std::vector<scalar> m_u_param;
 
             int8_t m_ruleMatrix[N][N] = {{NB,NB,NM,NM,NS,ZO,ZO},
                                          {NB,NB,NM,NS,NS,ZO,PS},
@@ -135,7 +160,9 @@ namespace fc {
                                          {NS,ZO,PS,PM,PM,PM,PB},
                                          {ZO,ZO,PM,PM,PM,PB,PB}};
             std::shared_ptr<fc::Membership> m_memFunc;
-            membershipType membershipFuncSel = membershipType::Triangle;
+            membershipType m_err_membershipFuncSel     = membershipType::Triangle;
+            membershipType m_err_dev_membershipFuncSel = membershipType::Triangle;
+            membershipType m_u_membershipFuncSel       = membershipType::Triangle;
 
             int16_t m_resolution;
     };

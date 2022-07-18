@@ -8,8 +8,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_BUILD_TYPE DEBUG)
 
-# set (CMAKE_C_COMPILER "E:/mingw64/bin/gcc.exe")
-# set (CMAKE_CXX_COMPILER "E:/mingw64/bin/g++.exe")
+set (CMAKE_C_COMPILER "E:/mingw64/bin/gcc.exe")
+set (CMAKE_CXX_COMPILER "E:/mingw64/bin/g++.exe")
 
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     message(FATAL_ERROR "Please select another folder to build the project.")
