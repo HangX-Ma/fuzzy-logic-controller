@@ -237,6 +237,13 @@ namespace fc {
         this->m_u_param = u_param;
     }
 
+    void FuzzyController::setParam_K(scalar Kp_e, scalar Kd_e, scalar Kp_u) {
+        this->Kp_e = Kp_e;
+        this->Kd_e = Kd_e;
+        this->Kp_u = Kp_u;
+    }
+
+
     void FuzzyController::showInfo() {
         std::cout << ANSI_COLOR_BLUE << 
         "------------ Information of fuzzy logic controller ------------" 

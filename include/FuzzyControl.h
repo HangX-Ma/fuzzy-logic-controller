@@ -73,6 +73,8 @@ namespace fc {
             void setGoal(scalar goal);
 
             void setCurrent(scalar curr);
+            
+            void setParam_K(scalar Kp_e, scalar Kd_e, scalar Kp_u);
 
             void showInfo();
 

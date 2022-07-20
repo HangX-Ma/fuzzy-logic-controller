@@ -42,8 +42,7 @@ target_sources(fc
     )
 set_target_properties(fc PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-
-find_package(Python3 REQUIRED 
+find_package(Python3 REQUIRED
     COMPONENTS 
         Interpreter
         Development
