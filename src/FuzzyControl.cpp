@@ -21,10 +21,15 @@ namespace fc {
         m_err      = m_goal - m_curr;
         m_err_last = 0;
         m_err_dev  = m_err - m_err_last;
+        m_err_int  = 0;
+        m_fb_u     = 0;
 
         Kp_e      = (N/2)/m_err_max;
         Kd_e      = (N/2)/m_err_dev_max;
         Kp_u      = m_u_max/(N/2);
+        // default PD system
+        K_sat    = 0;
+        Ki_e     = 0;
 
         m_memFunc  = std::make_shared<fc::Membership>();
     }
@@ -51,16 +56,18 @@ namespace fc {
         }
 
         scalar u;
+        scalar u_sat; // saturated output u
 
-        m_err     = m_goal - m_curr;
-        m_err_dev = m_err - m_err_last;
+        m_err      = m_goal - m_curr;
+        m_err_dev  = m_err - m_err_last;
 
-        m_err     = Kp_e * m_err;
-        m_err_dev = Kd_e * m_err_dev;
+        m_err      = Kp_e * m_err;
+        m_err_dev  = Kd_e * m_err_dev;
+        m_err_int += Ki_e * m_err - m_fb_u;
 
         // input limitation
-        m_err     = m_err > m_err_max ? m_err_max : (m_err < -m_err_max ? -m_err_max : m_err);
-        m_err_dev = m_err_dev > m_err_dev_max ? m_err_dev_max : (m_err_dev < -m_err_dev_max ? -m_err_dev_max : m_err_dev);
+        m_err      = m_err > m_err_max ? m_err_max : (m_err < -m_err_max ? -m_err_max : m_err);
+        m_err_dev  = m_err_dev > m_err_dev_max ? m_err_dev_max : (m_err_dev < -m_err_dev_max ? -m_err_dev_max : m_err_dev);
 
 
         // printf("Kp_e=%f, Kd_e=%f, Kp_u=%f\n", Kp_e, Kd_e, Kp_u);
@@ -76,14 +83,17 @@ namespace fc {
 
         u = (err_pack.first + err_dev_pack.first) / (err_pack.second + err_dev_pack.second);
 
-        u = Kp_u * u;
+        u = Kp_u * u + m_err_int;
+        u_sat = u;
 
-        if (u > m_u_max)  u = m_u_max;
-        if (u < -m_u_max) u = -m_u_max;
+        if (u_sat > m_u_max) u_sat = m_u_max;
+        if (u_sat < -m_u_max) u_sat = -m_u_max;
 
+        // update last error and feedback u that prevents saturating integration
+        m_fb_u = (u - u_sat) * K_sat;
         m_err_last = m_err;
 
-        return u;
+        return u_sat;
     }
 
     scalar FuzzyController::algo(scalar goal, scalar curr) {
@@ -242,10 +252,12 @@ namespace fc {
         this->m_u_param = u_param;
     }
 
-    void FuzzyController::setParam_K(scalar Kp_e, scalar Kd_e, scalar Kp_u) {
-        this->Kp_e = Kp_e;
-        this->Kd_e = Kd_e;
-        this->Kp_u = Kp_u;
+    void FuzzyController::setParam_K(scalar Kp_e, scalar Kd_e, scalar Kp_u, scalar Ki_e, scalar K_sat) {
+        this->Ki_e  = Ki_e;
+        this->Kp_e  = Kp_e;
+        this->Kd_e  = Kd_e;
+        this->Kp_u  = Kp_u;
+        this->K_sat = K_sat;
     }
 
 
@@ -253,11 +265,10 @@ namespace fc {
         std::cout << ANSI_COLOR_BLUE << 
         "------------ Information of fuzzy logic controller ------------" 
         << ANSI_COLOR_RESET << std::endl;
-        
         printf("Universal discourse [err]: [%f, %f]\n", -this->m_err_max, this->m_err_max);
         printf("Universal discourse [err_dev]: [%f, %f]\n", -this->m_err_dev_max, this->m_err_dev_max);
         printf("Universal discourse [u]: [%f, %f]\n", -this->m_u_max, this->m_u_max);
-        printf("Kp_e=%f, Kd_e=%f, Kp_u=%f\n", this->Kp_e, this->Kd_e, this->Kp_u);
+        printf("Kp_e=%f, Ki_e=%f, Kd_e=%f, Kp_u=%f, K_sat=%f\n", this->Kp_e,this->Ki_e, this->Kd_e, this->Kp_u, this->K_sat);
     }
 
 }

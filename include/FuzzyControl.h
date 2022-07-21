@@ -74,7 +74,7 @@ namespace fc {
 
             void setCurrent(scalar curr);
             
-            void setParam_K(scalar Kp_e, scalar Kd_e, scalar Kp_u);
+            void setParam_K(scalar Kp_e, scalar Kd_e, scalar Kp_u, scalar Ki_e, scalar K_sat);
 
             void showInfo();
 
@@ -136,18 +136,22 @@ namespace fc {
         private:
             scalar m_err;
             scalar m_err_last;
-            scalar m_err_dev;
+            scalar m_err_dev; // derivative e
+            scalar m_err_int; // integration e
+            scalar m_fb_u; // feedback delta u that prevents saturating integration 
 
             scalar m_err_max;
-            scalar m_err_dev_max; // derivative error
+            scalar m_err_dev_max;
             scalar m_u_max; // output maximum limitation
 
             scalar m_goal;
             scalar m_curr;
-            
+
+            scalar Ki_e;
             scalar Kp_e;
             scalar Kd_e;
             scalar Kp_u;
+            scalar K_sat;
 
              // This parameters are consistant in membership functions' input parameters times N
             std::vector<scalar> m_err_param;
