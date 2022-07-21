@@ -58,6 +58,11 @@ namespace fc {
         m_err     = Kp_e * m_err;
         m_err_dev = Kd_e * m_err_dev;
 
+        // input limitation
+        m_err     = m_err > m_err_max ? m_err_max : (m_err < -m_err_max ? -m_err_max : m_err);
+        m_err_dev = m_err_dev > m_err_dev_max ? m_err_dev_max : (m_err_dev < -m_err_dev_max ? -m_err_dev_max : m_err_dev);
+
+
         // printf("Kp_e=%f, Kd_e=%f, Kp_u=%f\n", Kp_e, Kd_e, Kp_u);
         // printf("err=%f, err_dev=%f\n", m_err, m_err_dev);
 
