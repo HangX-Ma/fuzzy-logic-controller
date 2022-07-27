@@ -78,15 +78,12 @@ namespace fc {
         std::vector<fuzzifyPackType> err_devFuzzified = 
                                 this->_fuzzify(m_err_dev_membershipFuncSel, m_err_dev, m_err_dev_param);
 
-        defuzzifyPackType err_pack = this->_defuzzify(m_u_membershipFuncSel, errFuzzified, m_u_param);
-        defuzzifyPackType err_dev_pack = this->_defuzzify(m_u_membershipFuncSel, err_devFuzzified, m_u_param);
+        u = this->_inference_and_defuzzify(m_u_membershipFuncSel, errFuzzified, err_devFuzzified, m_u_param);
 
-        u = (err_pack.first + err_dev_pack.first) / (err_pack.second + err_dev_pack.second);
-
-        u = Kp_u * u + m_err_int;
+        u     = Kp_u * u + m_err_int;
         u_sat = u;
 
-        if (u_sat > m_u_max) u_sat = m_u_max;
+        if (u_sat > m_u_max)  u_sat =  m_u_max;
         if (u_sat < -m_u_max) u_sat = -m_u_max;
 
         // update last error and feedback u that prevents saturating integration
@@ -108,7 +105,7 @@ namespace fc {
                                                            scalar_vec&    param) {
         std::vector<fuzzifyPackType> premisePairIndex;
         scalar premise;
-        for (uint8_t i = 0; i < N; i++) {
+        for (int8_t i = 0; i < N; i++) {
             if (type == membershipType::Triangle) {
                 premise = m_memFunc->Triangle(input, param[i*3], param[i*3+1], param[i*3+2]);
             } else if (type == membershipType::Trapezoid) {
@@ -128,25 +125,38 @@ namespace fc {
     }
 
 
-    defuzzifyPackType FuzzyController::_defuzzify(membershipType                type, 
-                                                  std::vector<fuzzifyPackType>& pack, 
-                                                  scalar_vec&                   param) {
-        int8_t index_size = static_cast<int8_t>(pack.size());
-        scalar num = 0, den = 0;
+    scalar FuzzyController::_inference_and_defuzzify(membershipType type,
+                                                     std::vector<fuzzifyPackType>& err_pack, 
+                                                     std::vector<fuzzifyPackType>& err_dev_pack,
+                                                     scalar_vec&                   param) {
+        uint8_t err_pack_size = err_pack.size();
+        uint8_t err_dev_pack_size = err_dev_pack.size();
+        centroidPackType centroid_param;
+        scalar chopOff_premise;
+        int8_t u_index;
+        scalar num = 0; scalar den = 0;
 
-        for (int8_t i = 0; i < index_size; i++) {
-            auto centroid_param = this->_getCentroidParam(type, pack.at(i).first, pack.at(i).second, param);
-            num += centroid_param.first;
-            den += centroid_param.second;
+        for (uint8_t m = 0; m < err_pack_size; m++) {
+            for (uint8_t n = 0; n < err_dev_pack_size; n++) {
+                // minimum operation. This operation is used to get the chop off premise value
+                chopOff_premise = Operation::min(err_pack.at(m).first, err_dev_pack.at(n).first);
+                // inference process. This process will generate the output field range. N/2 is the compensation
+                // of the index value.
+                u_index         = m_ruleMatrix[err_pack.at(m).second][err_dev_pack.at(n).second] + N/2;
+                centroid_param  = this->_getCentroidParam(type, chopOff_premise, u_index, param);
+
+                num += centroid_param.first;
+                den += centroid_param.second;
+            }
         }
 
-        return std::make_pair(num, den);
+        return num/den;
     }
 
-    defuzzifyPackType FuzzyController::_getCentroidParam(membershipType type, 
-                                                         scalar         chopOff_premise, 
-                                                         uint8_t        index, 
-                                                         scalar_vec&    param) {
+    centroidPackType FuzzyController::_getCentroidParam(membershipType type, 
+                                                        scalar         chopOff_premise, 
+                                                        uint8_t        index, 
+                                                        scalar_vec&    param) {
         uint8_t M = 0;
         if (type == membershipType::Triangle) M = 3;
         if (type == membershipType::Trapezoid) M = 4;

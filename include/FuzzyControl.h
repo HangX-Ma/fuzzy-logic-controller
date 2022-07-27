@@ -30,8 +30,8 @@
 
 namespace fc {
 
-    typedef std::pair<scalar, uint8_t> fuzzifyPackType;
-    typedef std::pair<scalar, scalar> defuzzifyPackType;
+    typedef std::pair<scalar, int8_t> fuzzifyPackType;
+    typedef std::pair<scalar, scalar> centroidPackType;
     typedef std::vector<scalar> scalar_vec;
     enum class membershipType {
         Rectangle,
@@ -107,13 +107,10 @@ namespace fc {
              */
             std::vector<fuzzifyPackType> _fuzzify(membershipType type, scalar input, std::vector<scalar>& param);
 
-            
-            /**
-             * @brief Defuzzify and inference the conclusion for action using `COG`
-             * @param [in] pack receive data from `_fuzzify()` function
-             * @return num and den
-             */
-            defuzzifyPackType _defuzzify(membershipType type, std::vector<fuzzifyPackType> &pack, std::vector<scalar>& param);
+            scalar _inference_and_defuzzify(membershipType                type,
+                                            std::vector<fuzzifyPackType>& err_pack, 
+                                            std::vector<fuzzifyPackType>& err_dev_pack,
+                                            scalar_vec&                   param);
 
             /**
              * @brief get the centroid parameters for defuzzification process
@@ -122,7 +119,7 @@ namespace fc {
              * @param [in] param universal discourse range for current membership function 
              * @return num, den
              */
-            defuzzifyPackType _getCentroidParam(membershipType type, scalar chopOff_premise, uint8_t index, std::vector<scalar>& param);
+            centroidPackType _getCentroidParam(membershipType type, scalar chopOff_premise, uint8_t index, std::vector<scalar>& param);
 
             /**
              * @brief Check membership function type required parameters number whether equal to input parameter number or not.
