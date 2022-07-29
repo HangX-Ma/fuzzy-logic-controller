@@ -163,11 +163,12 @@ namespace fc {
         if (type == membershipType::Rectangle || type == membershipType::Gaussian) M = 2;
 
         scalar dx = (param[(index+1)*M-1] - param[index*M]) / m_resolution;
-        scalar area = 0, x = param[0], xCentroid = 0;
+        scalar area = 0, xCentroid = 0;
+        scalar x, x_start = param[index*M];
         scalar curr_premise;
 
         for (int i = 0; i < m_resolution; i++) {
-            x = param[index*M] + (i+0.5) * dx;
+            x = x_start + (i+0.5) * dx;
             if (type == membershipType::Triangle) {
                 curr_premise = m_memFunc->Triangle(x, param[index*M], param[index*M+1], param[index*M+2]);
             } else if (type == membershipType::Trapezoid) {
