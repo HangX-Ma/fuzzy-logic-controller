@@ -61,6 +61,11 @@ namespace fc {
         m_err      = m_goal - m_curr;
         m_err_dev  = m_err - m_err_last;
 
+        // clear integral value
+        if ((m_err > 0 && m_err_last < 0) || (m_err < 0 && m_err_last > 0)) {
+            m_err_int = 0;
+        }
+
         m_err      = Kp_e * m_err;
         m_err_dev  = Kd_e * m_err_dev;
         m_err_int += Ki_e * m_err - m_fb_u;

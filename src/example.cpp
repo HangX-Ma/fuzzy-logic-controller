@@ -20,13 +20,13 @@ int main (int argc,char *argv[]) {
    constexpr fc::scalar deNB = -240, deNM = -160, deNS = -80,  deZO = 0,   dePS = 80,  dePM = 160, dePB = 240;
    constexpr fc::scalar uNE  = -90, uNB  = -50,  uNM  = -20,  uNS  = -10, uZO  = 0,   uPS  = 10,  uPM  = 20, uPB = 50, uPE = 90;
 
-    int8_t ruleMatrix[7][7]={{NB,NB,NM,NM,NM,NS,ZO},
-                             {NB,NB,NM,NM,NS,ZO,PS},
-                             {NM,NM,NM,NS,ZO,PS,PS},
-                             {NM,NM,NS,ZO,PS,PM,PM},
-                             {NS,NS,ZO,PS,PM,PM,PM},
-                             {NS,ZO,PS,PM,PM,PB,PB},
-                             {ZO,PS,PM,PM,PM,PB,PB}};
+    int8_t ruleMatrix[7][7]={{NB,NB,NM,NM,NS,ZO,ZO},
+                            {NB,NB,NM,NS,NS,ZO,PS},
+                            {NM,NM,NM,NS,ZO,PS,PS},
+                            {NM,NM,NS,ZO,PS,PM,PM},
+                            {NS,NS,ZO,PS,PS,PM,PM},
+                            {NS,ZO,PS,PM,PM,PB,PB},
+                            {ZO,ZO,PS,PM,PM,PB,PB}};
 
     // input parameter number is [N x M] coff*Kp_u*sign(i)*i
     std::vector<fc::scalar> e_mf_paras {eNB,eNB,eNM, eNB,eNM,eNS, eNM,eNS,eZO, eNS,eZO,ePS, eZO,ePS,ePM, ePS,ePM,ePB, ePM,ePB,ePB};
