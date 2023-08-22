@@ -9,6 +9,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set (CMAKE_C_COMPILER "E:/mingw64/bin/gcc.exe")
 set (CMAKE_CXX_COMPILER "E:/mingw64/bin/g++.exe")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     message(FATAL_ERROR "Please select another folder to build the project.")
 endif()
@@ -56,7 +58,13 @@ target_link_libraries(${PROJECT_NAME} ${Python3_LIBRARIES} ${Python3_NumPy_LIBRA
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/include/fuzzy
         ${CMAKE_SOURCE_DIR}/library
         ${Python3_INCLUDE_DIRS}
         ${Python3_NumPy_INCLUDE_DIRS}
 )
+
+# build doxygen
+message(STATUS "Build documentation open")
+include(cmake/build_doxygen.cmake)
+build_doxygen()

@@ -5,6 +5,7 @@ Realize the basic function of fuzzy logic controller. User can select _Triangle_
 ## Schedule
 
 - [x] Add an example. Visualization uses `matplotlib-cpp` [lava/matplotlib-cpp](https://github.com/lava/matplotlib-cpp) wrapper.
+- [ ] Refactor code following [Google C++ open source project style guide](https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/contents/).
 
 ## Example Usage
 

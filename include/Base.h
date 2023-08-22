@@ -1,13 +1,14 @@
 /**
- * @file Base.h
- * @author mahx(MContour) m-contour@qq.com
+ * @file base.h
+ * @author HangX-Ma (contour.9x@gmail.com)
  * @brief Basic definitions
- * @version 0.1
+ * @version 0.2
  * @date 2022-07-14
+ * @date 2023-08-22
  */
 
-#ifndef __BASE__H__
-#define __BASE__H__
+#ifndef __FC_BASE__H__
+#define __FC_BASE__H__
 
 #include <cmath>
 #include <limits>
@@ -31,46 +32,43 @@ namespace fc {
 #define FC_UNUSED_VAL
 #endif
 
-    /* represent the Not-A-Number and inifinity value */
-    const scalar nan FC_UNUSED_VAL = std::numeric_limits<scalar>::quiet_NaN();
-    const scalar inf FC_UNUSED_VAL = std::numeric_limits<scalar>::infinity();
-    const scalar eps = 1e-6;
+/* represent the Not-A-Number and infinity value */
+const scalar nan FC_UNUSED_VAL = std::numeric_limits<scalar>::quiet_NaN();
+const scalar inf FC_UNUSED_VAL = std::numeric_limits<scalar>::infinity();
+const scalar eps = 1e-6;
 
-    /* alias for `null` */
-    const std::nullptr_t null = nullptr;
 }
 
-//! Set red font in printf function
 #ifndef ANSI_COLOR_RED
 #define ANSI_COLOR_RED "\x1b[1;31m"
 #endif
-//! Set green font in printf function
+
 #ifndef ANSI_COLOR_GREEN
 #define ANSI_COLOR_GREEN "\x1b[1;32m"
 #endif
-//! Set yellow font in printf function
+
 #ifndef ANSI_COLOR_YELLOW
 #define ANSI_COLOR_YELLOW "\x1b[1;33m"
 #endif
-//! Set blue font in printf function
+
 #ifndef ANSI_COLOR_BLUE
 #define ANSI_COLOR_BLUE "\x1b[1;34m"
 #endif
-//! Set magenta font in printf function
+
 #ifndef ANSI_COLOR_MAGENTA
 #define ANSI_COLOR_MAGENTA "\x1b[1;35m"
 #endif
-//! Set cyan font in printf function
+
 #ifndef ANSI_COLOR_CYAN
 #define ANSI_COLOR_CYAN "\x1b[1;36m"
 #endif
-//! Set white font in printf function
+
 #ifndef ANSI_COLOR_WHITE
 #define ANSI_COLOR_WHITE "\x1b[1;37m"
 #endif
-//! Reset font color in printf function
+
 #ifndef ANSI_COLOR_RESET
 #define ANSI_COLOR_RESET "\x1b[0m"
 #endif
 
-#endif  //!__BASE__H__
+#endif  //!__FC_BASE__H__

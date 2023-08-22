@@ -1,4 +1,4 @@
-#include "FuzzyControl.h"
+#include "fuzzy/fuzzy_control.h"
 #include "matplotlibcpp.h"
 #include <iostream>
 #include <cmath>
