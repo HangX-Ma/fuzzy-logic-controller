@@ -13,20 +13,11 @@ Compile the project once you download this repository.
 ```shell
 git clone https://github.com/HangX-Ma/fuzzy-logic-controller.git
 cd fuzzy-logic-controller
-mkdir build && cd build
-cmake ..
-cmake --build .
+cmake -B build -S .
+cmake --build build
 ```
 
 After you run the executable file, the following result will show on terminal and you can find `example.png` in share folder.
-
-```shell
------------- Information of fuzzy logic controller ------------
-Universal discourse [err]: [-640.000000, 640.000000]
-Universal discourse [err_dev]: [-640.000000, 640.000000]
-Universal discourse [u]: [-180.000000, 180.000000]
-Kp_e=0.400000, Ki_e=0.010000, Kd_e=0.050000, Kp_u=4.000000, K_sat=0.100000
-```
 
 ## Fuzzy Logic Control Basic Concept
 
