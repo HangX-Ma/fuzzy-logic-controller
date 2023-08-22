@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set (CMAKE_C_COMPILER "E:/mingw64/bin/gcc.exe")
 set (CMAKE_CXX_COMPILER "E:/mingw64/bin/g++.exe")
 
+# generate a compile commands file as complete database for vim-YouCompleteMe or some other similar tools
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -37,6 +38,10 @@ add_compile_options(
     -Wsign-conversion # sign <-> unsigned conversion warning
 )
 
+add_definitions(
+    "-DFC_USE_DOUBLE"
+)
+
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -50,6 +55,8 @@ find_package(Python3 REQUIRED
         Development
         NumPy
 )
+
+include_directories()
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

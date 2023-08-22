@@ -65,6 +65,3 @@ GENERATE_TREEVIEW      = YES
 
 # Project section
 BRIEF_MEMBER_DESC      = NO
-
-# 生成的 html 底部页面生成的日期和时间
-HTML_TIMESTAMP         = YES

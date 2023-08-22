@@ -12,6 +12,7 @@
 
 #include "base.h"
 
+#include <sstream>
 #include <vector>
 
 namespace fc {

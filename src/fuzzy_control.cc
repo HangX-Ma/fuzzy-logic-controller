@@ -1,6 +1,7 @@
 #include "fuzzy/fuzzy_control.h"
+
+#include <iostream>
 #include <exception>
-#include <cstdio>
 
 namespace fc {
 FuzzyController::FuzzyController(scalar err_max, scalar err_dev_max, scalar u_max)

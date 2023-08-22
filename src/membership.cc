@@ -1,4 +1,5 @@
 #include "fuzzy/membership.h"
+#include <cmath>
 
 namespace fc {
 Membership::Membership(scalar height) : m_height(height) {}
