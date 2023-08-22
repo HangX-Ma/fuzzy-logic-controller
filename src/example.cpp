@@ -53,7 +53,7 @@ int main (int argc,char *argv[]) {
     fzc->setParam_K(0.65, 0.42, 2.2, 0.0006, 0.02);
     fzc->showInfo();
 
-    uint8_t iter_max = 250; 
+    uint8_t iter_max = 250;
     std::vector<fc::scalar> epoch(iter_max), err(iter_max), err_dev(iter_max), base(iter_max,0);
 
     epoch.at(0)         = 0;

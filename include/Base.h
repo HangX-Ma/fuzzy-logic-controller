@@ -4,9 +4,6 @@
  * @brief Basic definitions
  * @version 0.1
  * @date 2022-07-14
- * 
- * @copyright Copyright (c) 2022 Fuzzy Limited. All rights reserved.
- * 
  */
 
 #ifndef __BASE__H__

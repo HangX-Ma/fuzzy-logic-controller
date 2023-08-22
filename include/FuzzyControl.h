@@ -4,9 +4,6 @@
  * @brief Fuzzy logic controller realization
  * @version 0.1
  * @date 2022-07-15
- * 
- * @copyright Copyright (c) 2022 Fuzzy Limited. All rights reserved.
- * 
  */
 
 #ifndef __FUZZYCONTROL__H__
@@ -73,7 +70,7 @@ namespace fc {
             void setGoal(scalar goal);
 
             void setCurrent(scalar curr);
-            
+
             void setParam_K(scalar Kp_e, scalar Kd_e, scalar Kp_u, scalar Ki_e, scalar K_sat);
 
             void showInfo();
@@ -102,21 +99,23 @@ namespace fc {
             /**
              * @brief Fuzzify the input value using membership function
              * @param [in] input fuzzification target
-             * @param [in] param universal discourse range for current membership function 
+             * @param [in] param universal discourse range for current membership function
              * @return premise degree and index of effective membership
              */
             std::vector<fuzzifyPackType> _fuzzify(membershipType type, scalar input, std::vector<scalar>& param);
 
-            scalar _inference_and_defuzzify(membershipType                type,
-                                            std::vector<fuzzifyPackType>& err_pack, 
-                                            std::vector<fuzzifyPackType>& err_dev_pack,
-                                            scalar_vec&                   param);
+            scalar _inference_and_defuzzify(
+                    membershipType                type,
+                    std::vector<fuzzifyPackType>& err_pack,
+                    std::vector<fuzzifyPackType>& err_dev_pack,
+                    scalar_vec&                   param
+                );
 
             /**
              * @brief get the centroid parameters for defuzzification process
              * @param [in] chopOff_premise Minimum operation is used to get the premise degree
              * @param [in] index indicate which universal discourse is determined
-             * @param [in] param universal discourse range for current membership function 
+             * @param [in] param universal discourse range for current membership function
              * @return num, den
              */
             centroidPackType _getCentroidParam(membershipType type, scalar chopOff_premise, uint8_t index, std::vector<scalar>& param);
@@ -125,8 +124,8 @@ namespace fc {
              * @brief Check membership function type required parameters number whether equal to input parameter number or not.
              * @param type membership function type
              * @param param membership function parameter list
-             * @retval ERROR 
-             * @retval SUCCESS 
+             * @retval ERROR
+             * @retval SUCCESS
              */
             ErrorStatus _paramCheck(membershipType type, std::vector<scalar>& param);
 
@@ -135,7 +134,7 @@ namespace fc {
             scalar m_err_last;
             scalar m_err_dev; // derivative e
             scalar m_err_int; // integration e
-            scalar m_fb_u; // feedback delta u that prevents saturating integration 
+            scalar m_fb_u; // feedback delta u that prevents saturating integration
 
             scalar m_err_max;
             scalar m_err_dev_max;

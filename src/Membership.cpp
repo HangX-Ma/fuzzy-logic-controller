@@ -1,17 +1,4 @@
-/**
- * @file Membership.cpp
- * @author mahx(MContour) m-contour@qq.com
- * @brief membership functions class
- * @version 0.1
- * @date 2022-07-15
- * 
- * @copyright Copyright (c) 2022 Fuzzy Limited. All rights reserved.
- * 
- */
-
-
 #include "Membership.h"
-
 
 namespace fc {
     Membership::Membership(scalar height) : m_height(height) {}
@@ -28,7 +15,7 @@ namespace fc {
             return m_height * 1.0;
         }
 
-        return m_height * 0.0; 
+        return m_height * 0.0;
     }  // Rectangle membership function has mu(x)=1 in range [s,e].
 
 
@@ -55,7 +42,7 @@ namespace fc {
         }
 
         return m_height * (vertexC - x) / (vertexC - vertexB);
-    } 
+    }
 
 
     scalar Membership::Trapezoid(scalar x, scalar vertexA, scalar vertexB, scalar vertexC, scalar vertexD) const {

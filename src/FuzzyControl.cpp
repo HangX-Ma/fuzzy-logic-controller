@@ -1,20 +1,9 @@
-/**
- * @file FuzzyControl.cpp
- * @author mahx(MContour) m-contour@qq.com
- * @brief Fuzzy logic controller realization
- * @version 0.1
- * @date 2022-07-15
- * 
- * @copyright Copyright (c) 2022 Fuzzy Limited. All rights reserved.
- * 
- */
-
 #include "FuzzyControl.h"
 #include <exception>
 #include <cstdio>
 
 namespace fc {
-    FuzzyController::FuzzyController(scalar err_max, scalar err_dev_max, scalar u_max) 
+    FuzzyController::FuzzyController(scalar err_max, scalar err_dev_max, scalar u_max)
         : m_err_max(err_max), m_err_dev_max(err_dev_max), m_u_max(u_max), m_goal(0), m_curr(0),
         m_resolution(100) {
 
@@ -78,9 +67,9 @@ namespace fc {
         // printf("Kp_e=%f, Kd_e=%f, Kp_u=%f\n", Kp_e, Kd_e, Kp_u);
         // printf("err=%f, err_dev=%f\n", m_err, m_err_dev);
 
-        std::vector<fuzzifyPackType> errFuzzified = 
+        std::vector<fuzzifyPackType> errFuzzified =
                                 this->_fuzzify(m_err_membershipFuncSel, m_err, m_err_param);
-        std::vector<fuzzifyPackType> err_devFuzzified = 
+        std::vector<fuzzifyPackType> err_devFuzzified =
                                 this->_fuzzify(m_err_dev_membershipFuncSel, m_err_dev, m_err_dev_param);
 
         u = this->_inference_and_defuzzify(m_u_membershipFuncSel, errFuzzified, err_devFuzzified, m_u_param);
@@ -101,12 +90,12 @@ namespace fc {
     scalar FuzzyController::algo(scalar goal, scalar curr) {
         this->setGoal(goal);
         this->setCurrent(curr);
-        
+
         return this->algo();
     }
 
-    std::vector<fuzzifyPackType> FuzzyController::_fuzzify(membershipType type, 
-                                                           scalar         input, 
+    std::vector<fuzzifyPackType> FuzzyController::_fuzzify(membershipType type,
+                                                           scalar         input,
                                                            scalar_vec&    param) {
         std::vector<fuzzifyPackType> premisePairIndex;
         scalar premise;
@@ -123,17 +112,19 @@ namespace fc {
             if (std::abs(premise) >= fc::eps) {
                 premisePairIndex.push_back(std::make_pair(premise, i));
             }
-        } // This `for` cycle is designed to find which linguistic discourse the input locates at. 
+        } // This `for` cycle is designed to find which linguistic discourse the input locates at.
           // If `premise` is not zero, save it in `premisePairIndex` vector.
 
         return premisePairIndex;
     }
 
 
-    scalar FuzzyController::_inference_and_defuzzify(membershipType type,
-                                                     std::vector<fuzzifyPackType>& err_pack, 
-                                                     std::vector<fuzzifyPackType>& err_dev_pack,
-                                                     scalar_vec&                   param) {
+    scalar FuzzyController::_inference_and_defuzzify(
+        membershipType type,
+        std::vector<fuzzifyPackType>& err_pack,
+        std::vector<fuzzifyPackType>& err_dev_pack,
+        scalar_vec&                   param)
+    {
         uint8_t err_pack_size = err_pack.size();
         uint8_t err_dev_pack_size = err_dev_pack.size();
         centroidPackType centroid_param;
@@ -158,10 +149,12 @@ namespace fc {
         return num/den;
     }
 
-    centroidPackType FuzzyController::_getCentroidParam(membershipType type, 
-                                                        scalar         chopOff_premise, 
-                                                        uint8_t        index, 
-                                                        scalar_vec&    param) {
+    centroidPackType FuzzyController::_getCentroidParam(
+            membershipType type,
+            scalar         chopOff_premise,
+            uint8_t        index,
+            scalar_vec&    param)
+    {
         uint8_t M = 0;
         if (type == membershipType::Triangle) M = 3;
         if (type == membershipType::Trapezoid) M = 4;
