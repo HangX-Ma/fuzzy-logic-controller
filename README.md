@@ -26,7 +26,7 @@ cmake --build build
 ```
 
 <div align="center">
-    <img src="assets/fuzzy_control_surface." alt="Fuzzy control surface, HangX-Ma" width=400 />
+    <img src="assets/fuzzy_control_surface.png" alt="Fuzzy control surface, HangX-Ma" width=400 />
     <br>
     <font size="2" color="#999"><u>Fuzzy control surface, HangX-Ma</u></font>
 </div>
