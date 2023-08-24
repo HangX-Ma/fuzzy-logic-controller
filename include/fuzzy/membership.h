@@ -10,8 +10,8 @@
 #ifndef __FC_FUZZY_MEMBERSHIP__H__
 #define __FC_FUZZY_MEMBERSHIP__H__
 
-#include "base.h"
-#include "operation.h"
+#include "utils/base.h"
+#include "utils/operation.h"
 #include <optional>
 
 namespace fc {

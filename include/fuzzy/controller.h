@@ -9,7 +9,7 @@
 #ifndef __FC_FUZZY_CONTROLLER__H__
 #define __FC_FUZZY_CONTROLLER__H__
 
-#include "base.h"
+#include "utils/base.h"
 
 constexpr const int8_t NB = -3;
 constexpr const int8_t NM = -2;

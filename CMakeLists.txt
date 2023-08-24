@@ -65,7 +65,6 @@ target_link_libraries(${PROJECT_NAME} ${Python3_LIBRARIES} ${Python3_NumPy_LIBRA
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/include/fuzzy
         ${CMAKE_SOURCE_DIR}/library/matplotlib-cpp
         ${CMAKE_SOURCE_DIR}/library/eigen-3.4.0
         ${Python3_INCLUDE_DIRS}
