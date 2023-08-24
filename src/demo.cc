@@ -13,7 +13,15 @@ int main (int argc,char *argv[]) {
     FC_UNUSED(argv);
 
 
-    fc::scalar e_params[E_PARAMS_NUM] = {};
+    fc::scalar e_params[E_PARAMS_NUM] = {
+        -3, -3, -2,
+        -3, -2, -1,
+        -2, -1,  0,
+        -1,  0,  1,
+         0,  1,  2,
+         1,  2,  3,
+         2,  3,  3,
+    };
     fc::scalar ec_params[EC_PARAMS_NUM] = {};
     fc::scalar u_params[U_PARAMS_NUM] = {};
 
@@ -38,6 +46,7 @@ int main (int argc,char *argv[]) {
     fuzzy.setFuzzyRules(rule_table);
 
     fuzzy.plotFuzzyControlSurface();
+    fuzzy.e->plotMembershipFunctions();
 
     return 0;
 }

@@ -11,12 +11,12 @@ Realize the basic function of fuzzy logic controller. User can select _Triangle_
 
 ## Schedule
 
-- [x] Add an example. Visualization uses [lava/matplotlib-cpp](https://github.com/lava/matplotlib-cpp) wrapper.
+- [ ] Uses [lava/matplotlib-cpp](https://github.com/lava/matplotlib-cpp) wrapper to do visualization .
 - [ ] Refactor code following [Google C++ open source project style guide](https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/contents/).
 
 ## Example Usage
 
-Compile the project once you download this repository.
+Compile the project after you download this repository.
 
 ```shell
 git clone https://github.com/HangX-Ma/fuzzy-logic-controller.git
@@ -25,7 +25,11 @@ cmake -B build -S .
 cmake --build build
 ```
 
-After you run the executable file, the following result will show on terminal and you can find `example.png` in share folder.
+<div align="center">
+    <img src="assets/fuzzy_control_surface." alt="Fuzzy control surface, HangX-Ma" width=400 />
+    <br>
+    <font size="2" color="#999"><u>Fuzzy control surface, HangX-Ma</u></font>
+</div>
 
 ## Fuzzy Logic Control Basic Concept
 
@@ -37,7 +41,7 @@ Fuzzy logic controller is composed of the following four elements:
 4. A _**defuzzification interface**_, which converts the conclusions of the inference mechanism into actual inputs for the process.
 
 <div align="center">
-    <img src="assets/fzc-architecture.png" alt="Fuzzy controller architecture, HangX-Ma" width=600 />
+    <img src="assets/fzc_architecture.png" alt="Fuzzy controller architecture, HangX-Ma" width=600 />
     <br>
     <font size="2" color="#999"><u>Fuzzy controller architecture, HangX-Ma</u></font>
 </div>

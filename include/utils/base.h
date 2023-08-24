@@ -15,6 +15,13 @@
 
 namespace fc {
 
+
+#ifdef FC_USE_DEBUG_MSG
+#define dbgmsg(fmt, ...) printf("[DEBUG]" fmt "\n", ##__VA_ARGS__)
+#else
+#define dbgmsg(fmt, ...)
+#endif
+
 /* basic type definition */
 #ifdef FC_USE_FLOAT
     typedef float scalar;

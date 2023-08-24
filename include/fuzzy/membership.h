@@ -27,7 +27,7 @@ typedef std::pair<scalar/*minimum*/, scalar/*maximum*/> Range;
 
 class Membership {
     public:
-        explicit Membership(scalar height = 1.0);
+        explicit Membership(const std::string name = "", scalar height = 1.0);
         ~Membership();
 
         std::optional<scalar> calculate(const scalar input, const std::vector<scalar>& param_set);
@@ -39,6 +39,8 @@ class Membership {
         size_t getDiscourseSize(void);
         const std::vector<scalar> getParamSet(size_t discourse_id);
         const Range getRange(size_t discourse_id);
+        membershipType getType(void);
+        const std::string& getName(void);
     private:
         /**
          * @brief Compute membership function value at \f$x\f$
@@ -112,6 +114,7 @@ class Membership {
         Range calculateRange(const membershipType type, const std::vector<scalar>& param_set);
 
         scalar height_;
+        std::string name_;
         membershipType type_;
         size_t discourse_size_;
         std::vector<std::vector<scalar>> params_;

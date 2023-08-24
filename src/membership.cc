@@ -4,8 +4,9 @@
 
 using namespace fc;
 
-Membership::Membership(scalar height)
+Membership::Membership(std::string name, scalar height)
     : height_(height),
+      name_(name),
       type_(membershipType::None),
       discourse_size_(0) {}
 
@@ -42,13 +43,13 @@ Range Membership::calculateRange(const membershipType type, const std::vector<sc
     scalar derivation;
     switch (type) {
         case membershipType::Triangle:
-            range = Range{param_set.front(), param_set.back()};
+            range = Range{param_set.at(0), param_set.at(2)};
             break;
         case membershipType::Trapezoid:
-            range = Range{param_set.front(), param_set.back()};
+            range = Range{param_set.at(0), param_set.at(3)};
             break;
         case membershipType::Gaussian:
-            derivation = param_set.back();
+            derivation = param_set.at(1);
             range = Range{-3.0 * derivation, 3.0 * derivation};
             break;
         case membershipType::None:
@@ -60,9 +61,12 @@ Range Membership::calculateRange(const membershipType type, const std::vector<sc
     return range;
 }
 
-void Membership::setMembershipParam(const membershipType type, const scalar input_params[], uint8_t params_num) {
+void Membership::setMembershipParam(const membershipType type,
+                                    const scalar input_params[],
+                                    uint8_t params_num)
+{
     uint8_t size = static_cast<uint8_t>(type);
-    std::vector<scalar> param_set(size);
+    std::vector<scalar> param_set;
 
     if (params_num % size != 0) {
         printf("[membership error] membership type: %d, param number: %d\n", size, params_num);
@@ -72,14 +76,16 @@ void Membership::setMembershipParam(const membershipType type, const scalar inpu
     type_ = type;
     discourse_size_ = params_num / size;
 
-    for (uint8_t idx = 0; idx < params_num; idx++) {
+    for (uint8_t idx = 1; idx <= params_num; idx++) {
+        param_set.emplace_back(input_params[idx - 1]);
         // store the params set by group according to membership function required params size
         if (idx % size == 0) {
+            dbgmsg("[membership %s] id: %d, (%f, %f, %f)",
+                this->getName().data() , idx / size, param_set.at(0), param_set.at(1), param_set.at(2));
             params_.emplace_back(param_set);
             params_range_.emplace_back(calculateRange(type, param_set));
             param_set.clear();
         }
-        param_set.emplace_back(input_params[idx]);
     }
 }
 
@@ -170,4 +176,13 @@ const std::vector<scalar> Membership::getParamSet(size_t discourse_id) {
 
 const Range Membership::getRange(size_t discourse_id) {
     return params_range_.at(discourse_id);
+}
+
+membershipType Membership::getType(void) {
+    return type_;
+}
+
+
+const std::string& Membership::getName(void) {
+    return name_;
 }

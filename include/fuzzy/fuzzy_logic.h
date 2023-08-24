@@ -31,7 +31,7 @@ typedef struct Inference {
 //? Note: e/ec factor=discourse_size/bound, u factor=bound/discourse_size
 class Fuzzification {
     public:
-        Fuzzification(scalar bound = 0.0);
+        Fuzzification(const std::string name = "", scalar bound = 0.0);
         ~Fuzzification();
 
         void init(const scalar bound,
@@ -40,12 +40,19 @@ class Fuzzification {
                   const scalar input_params[],
                   const uint8_t params_num);
         void fuzzify(scalar input);
+        const std::string& getName(void);
+
+#if FC_USE_MATPLOTLIB
+        void plotMembershipFunctions(void);
+#endif
 
         std::unique_ptr<Membership> membership_;
         std::vector<PremisePair> premise_pairs_;
 
         scalar factor_; // quantifying/scaling factor
         scalar bound_;  // upper bound
+    protected:
+        std::string name_;
 };
 
 

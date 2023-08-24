@@ -4,10 +4,10 @@
 
 using namespace fc;
 
-Fuzzification::Fuzzification(scalar bound)
-    : factor_(0), bound_(bound)
+Fuzzification::Fuzzification(const std::string name, scalar bound)
+    : factor_(0), bound_(bound), name_(name)
 {
-    membership_ = std::make_unique<Membership>();
+    membership_ = std::make_unique<Membership>(name);
 }
 
 Fuzzification::~Fuzzification() {}
@@ -37,13 +37,17 @@ void Fuzzification::fuzzify(scalar input) {
     }
 }
 
+const std::string& Fuzzification::getName(void) {
+    return name_;
+}
+
 
 FuzzyLogic::FuzzyLogic()
     : control_(Err_t{0, 0, 0})
 {
-    e  = std::make_unique<Fuzzification>();
-    ec = std::make_unique<Fuzzification>();
-    u  = std::make_unique<Fuzzification>();
+    e  = std::make_unique<Fuzzification>("e");
+    ec = std::make_unique<Fuzzification>("ec");
+    u  = std::make_unique<Fuzzification>("u");
 }
 
 FuzzyLogic::~FuzzyLogic() {}
@@ -139,6 +143,41 @@ void FuzzyLogic::setFuzzyRules(const Matrix &rule_table) {
 
 namespace plt = matplotlibcpp;
 
+void Fuzzification::plotMembershipFunctions(void) {
+    int n = 500;
+    std::vector<double> x(n), y(n), w(n, 0);
+
+    plt::figure_size(1280, 768);
+    size_t discourse_size = membership_->getDiscourseSize();
+    switch (membership_->getType()) {
+        case membershipType::Triangle:
+            for (size_t id = 0; id < discourse_size; id++) {
+                const auto params = membership_->getParamSet(id);
+                const auto [minimum, maximum] = membership_->getRange(id);
+                double dx = (maximum - minimum) / n;
+                for (int i = 0; i < n; i++) {
+                    x.at(i) = minimum + i * dx;
+                    y.at(i) = membership_->calculate(x.at(i), params).value_or(0);
+                }
+                plt::plot(x, y);
+                plt::plot(x, w,"r--");
+            }
+            plt::ylabel("Degree of membership");
+            plt::xlabel("input/output");
+            plt::title("Membership Functions: Triangle");
+            plt::save("assets/" + getName() + "_membership_triangle.png");
+            break;
+        case membershipType::Trapezoid:
+            break;
+        case membershipType::Gaussian:
+            break;
+        case membershipType::None:
+            /* fall through */
+        default:
+            throw std::invalid_argument("[membership error] set membership type first");
+    }
+}
+
 void FuzzyLogic::plotFuzzyControlSurface(void) {
     std::vector<std::vector<double>> x, y, z;
     double e_discourse_bound = static_cast<double>(e->membership_->getDiscourseSize() / 2);
@@ -158,12 +197,15 @@ void FuzzyLogic::plotFuzzyControlSurface(void) {
         z.push_back(z_row);
     }
 
-    plt::plot_surface(x, y, z);
+    // elevation=18, azimuth=-133
+    long id = plt::figure();
+    plt::plot_surface(x, y, z, {{"linewidth", "2"}, {"antialiased", "True"}}, id);
     plt::xlabel("e");
     plt::ylabel("ec");
     plt::set_zlabel("u");
     plt::title("Fuzzy Control Surface");
     plt::show();
+    // plt::save("assets/fuzzy_control_surface.png");
 }
 
 #endif
