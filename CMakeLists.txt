@@ -34,8 +34,8 @@ endif()
 add_compile_options(
     -Wall # print warning info
     -Wextra # print extra warning info
-    -Wconversion # data conversion truncation warning
-    -Wsign-conversion # sign <-> unsigned conversion warning
+    # -Wconversion # data conversion truncation warning
+    # -Wsign-conversion # sign <-> unsigned conversion warning
 )
 
 add_definitions(

@@ -76,7 +76,7 @@ inline bool Operation::isNaN(T x) {
     return (x != x);
 } // NaN values never compare equal to themselves or to other NaN values. Copying a NaN is not required.
 
-
+//? (a != a && b != b) is used to deal with special cases such as NaN. It will return `true`
 template<typename T>
 inline bool Operation::isFinite(T x) {
     return not (x != x || x == fc::inf || x == -fc::inf);

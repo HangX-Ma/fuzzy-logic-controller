@@ -11,25 +11,30 @@
 #define __FC_BASE__H__
 
 #include <limits>
+#include "Eigen/Eigen"
 
 namespace fc {
 
 /* basic type definition */
 #ifdef FC_USE_FLOAT
     typedef float scalar;
+    typedef Eigen::MatrixXf Matrix;
 #elif FC_USE_DOUBLE
     typedef double scalar;
+    typedef Eigen::MatrixXd Matrix;
 #endif
 
+#define FC_UNUSED(x) (void)(x)
+
 #ifdef __GNUC__
-#define FC_UNUSED __attribute__((unused))
+#define FC_UNUSED_DECLARE __attribute__((unused))
 #else
-#define FC_UNUSED
+#define FC_UNUSED_DECLARE
 #endif
 
 /* represent the Not-A-Number and infinity value */
-const scalar nan FC_UNUSED = std::numeric_limits<scalar>::quiet_NaN();
-const scalar inf FC_UNUSED = std::numeric_limits<scalar>::infinity();
+const scalar nan = std::numeric_limits<scalar>::quiet_NaN();
+const scalar inf = std::numeric_limits<scalar>::infinity();
 const scalar eps = 1e-6;
 
 }

@@ -7,38 +7,41 @@
  * @date 2023-08-22
  */
 
-#ifndef __FC_MEMBERSHIP__H__
-#define __FC_MEMBERSHIP__H__
+#ifndef __FC_FUZZY_MEMBERSHIP__H__
+#define __FC_FUZZY_MEMBERSHIP__H__
 
 #include "base.h"
 #include "operation.h"
+#include <optional>
 
 namespace fc {
+
+enum class membershipType : uint8_t {
+    None = 0,
+    Gaussian  = 2,
+    Triangle  = 3,
+    Trapezoid = 4,
+};
+
+typedef std::pair<scalar/*minimum*/, scalar/*maximum*/> Range;
+
 class Membership {
     public:
         explicit Membership(scalar height = 1.0);
         ~Membership();
 
-        /**
-         * @brief Compute membership function value at \f$x\f$
-         * @note @f$\begin{cases}
-         * 1h & \mbox{if $x \in [s, e]$} \cr
-         * 0h & \mbox{otherwise}
-         * \end{cases}@f$
-         *
-         * where \c h is the height of the Term,
-         *       \c s is the start of the Rectangle,
-         *       \c e is the end of the Rectangle.
-         *
-         * @param [in] x computation position
-         * @param [in] start
-         * @param [in] end
-         * @return membership value \f$\mu(x)\f$
-         */
-        scalar Rectangle(scalar x     = fc::nan,
-                         scalar start = fc::nan,
-                         scalar end   = fc::nan) const;
+        std::optional<scalar> calculate(const scalar input, const std::vector<scalar>& param_set);
 
+        void setMembershipParam(const membershipType type, const scalar input_params[], const uint8_t params_num);
+        void setHeight(scalar height);
+
+        scalar getHeight(void) const;
+        size_t getDiscourseSize(void);
+
+
+        const std::vector<scalar> getParamSet(size_t discourse_id);
+        const Range getRange(size_t discourse_id);
+    private:
         /**
          * @brief Compute membership function value at \f$x\f$
          * @note @f$\begin{cases}
@@ -58,7 +61,7 @@ class Membership {
          * @param [in] vertexC
          * @return membership value \f$\mu(x)\f$
          */
-        scalar Triangle(scalar x       = fc::nan,
+        scalar triangle(scalar x       = fc::nan,
                         scalar vertexA = fc::nan,
                         scalar vertexB = fc::nan,
                         scalar vertexC = fc::nan) const;
@@ -86,7 +89,7 @@ class Membership {
          * @param [in] vertexD
          * @return membership value \f$\mu(x)\f$
          */
-        scalar Trapezoid(scalar x       = fc::nan,
+        scalar trapezoid(scalar x       = fc::nan,
                          scalar vertexA = fc::nan,
                          scalar vertexB = fc::nan,
                          scalar vertexC = fc::nan,
@@ -104,19 +107,19 @@ class Membership {
          * @param [in] standardDeviation
          * @return membership value \f$\mu(x)\f$
          */
-        scalar Gaussian(scalar x                 = fc::nan,
+        scalar gaussian(scalar x                 = fc::nan,
                         scalar mean              = fc::nan,
                         scalar standardDeviation = fc::nan) const;
 
-        void setHeight(scalar height);
+        Range calculateRange(const membershipType type, const std::vector<scalar>& param_set);
 
-        scalar getHeight() const;
-
-    private:
-        scalar m_height;
-
+        scalar height_;
+        membershipType type_;
+        size_t discourse_size_;
+        std::vector<std::vector<scalar>> params_;
+        std::vector<Range> params_range_;
 };
 }
 
 
-#endif  //!__FC_MEMBERSHIP__H__
+#endif  //!__FC_FUZZY_MEMBERSHIP__H__
