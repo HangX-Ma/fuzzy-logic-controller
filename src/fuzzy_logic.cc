@@ -24,14 +24,6 @@ void Fuzzification::init(const scalar bound,
     if (reverse) factor_ = 1 / factor_;
 }
 
-void Fuzzification::setFactor(scalar factor) {
-    factor_ = factor;
-}
-
-scalar Fuzzification::getFactor(void) {
-    return factor_;
-}
-
 void Fuzzification::fuzzify(scalar input) {
     std::optional<scalar> premise;
 
@@ -45,13 +37,37 @@ void Fuzzification::fuzzify(scalar input) {
     }
 }
 
-FuzzyLogic::FuzzyLogic() {
-    e = std::make_unique<Fuzzification>();
+
+FuzzyLogic::FuzzyLogic()
+    : control_(Err_t{0, 0, 0})
+{
+    e  = std::make_unique<Fuzzification>();
     ec = std::make_unique<Fuzzification>();
-    u = std::make_unique<Fuzzification>();
+    u  = std::make_unique<Fuzzification>();
 }
 
 FuzzyLogic::~FuzzyLogic() {}
+
+scalar FuzzyLogic::algo(Control_t input) {
+    scalar output;
+
+    // calculate the basic control params and normalize them to discourse range
+    control_.err   = e->factor_ * (input.target - input.actual);
+    control_.d_err = ec->factor_ * (control_.err - control_.prev_err);
+    control_.prev_err = control_.err;
+
+    e->fuzzify(control_.err);
+    ec->fuzzify(control_.d_err);
+
+    inference();
+
+    output = defuzzify() * u->factor_;
+
+    if (output >= u->bound_) output = u->bound_;
+    if (output <= -u->bound_) output = -u->bound_;
+
+    return output;
+}
 
 void FuzzyLogic::inference(void) {
     Inference_t inference_set;
@@ -116,3 +132,38 @@ void FuzzyLogic::setFuzzyRules(const Matrix &rule_table) {
     }
     rule_table_ = rule_table;
 }
+
+
+#if FC_USE_MATPLOTLIB
+#include "matplotlibcpp.h"
+
+namespace plt = matplotlibcpp;
+
+void FuzzyLogic::plotFuzzyControlSurface(void) {
+    std::vector<std::vector<double>> x, y, z;
+    double e_discourse_bound = static_cast<double>(e->membership_->getDiscourseSize() / 2);
+    double ec_discourse_bound = static_cast<double>(ec->membership_->getDiscourseSize() / 2);
+
+    printf("Rows(%f,%f) Cols(%f,%f)\n", -e_discourse_bound, e_discourse_bound, -ec_discourse_bound, ec_discourse_bound);
+
+    for (double i = -e_discourse_bound; i <= e_discourse_bound;  i++) {
+        std::vector<double> x_row, y_row, z_row;
+        for (double j = -ec_discourse_bound; j <= ec_discourse_bound;  j++) {
+            x_row.push_back(i);
+            y_row.push_back(j);
+            z_row.push_back(rule_table_(static_cast<size_t>(i + e_discourse_bound), static_cast<size_t>(j + ec_discourse_bound)));
+        }
+        x.push_back(x_row);
+        y.push_back(y_row);
+        z.push_back(z_row);
+    }
+
+    plt::plot_surface(x, y, z);
+    plt::xlabel("e");
+    plt::ylabel("ec");
+    plt::set_zlabel("u");
+    plt::title("Fuzzy Control Surface");
+    plt::show();
+}
+
+#endif

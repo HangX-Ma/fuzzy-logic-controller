@@ -1,10 +1,17 @@
 # A fuzzy logic controller
 
-Realize the basic function of fuzzy logic controller. User can select _Triangle_, _Rectangle_, _Trapezoid_, _Gaussian_ membership functions to do fuzzification. _Centroid (COG)_ method is used to defuzzification. To enhance the performance of this controller, mix the fuzzy controller with a parallel integrator and add a module to prevent integral saturation.
+Realize the basic function of fuzzy logic controller. User can select _Triangle_, _Trapezoid_, _Gaussian_ membership functions to do fuzzification. _Centroid (COG)_ method is used to defuzzification. To enhance the performance of this controller, mix the fuzzy controller with a parallel integrator and add a module to prevent integral saturation.
+
+## Environment
+
+- Python3.11, matplotlib-3.7.1
+- Eigen-3.4.0
+- matplotlib-cpp
+- C++17, CMake 3.23
 
 ## Schedule
 
-- [x] Add an example. Visualization uses `matplotlib-cpp` [lava/matplotlib-cpp](https://github.com/lava/matplotlib-cpp) wrapper.
+- [x] Add an example. Visualization uses [lava/matplotlib-cpp](https://github.com/lava/matplotlib-cpp) wrapper.
 - [ ] Refactor code following [Google C++ open source project style guide](https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/contents/).
 
 ## Example Usage

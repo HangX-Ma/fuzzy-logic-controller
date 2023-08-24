@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
 project(fuzzy LANGUAGES CXX)
 
@@ -40,6 +40,7 @@ add_compile_options(
 
 add_definitions(
     "-DFC_USE_DOUBLE"
+    "-DFC_USE_MATPLOTLIB"
 )
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -49,29 +50,46 @@ file(GLOB_RECURSE SOURCES
     "src/*.*"
 )
 
-find_package(Python3 REQUIRED
-    COMPONENTS
-        Interpreter
-        Development
-        NumPy
+# Library target
+add_library(matplotlib_cpp INTERFACE)
+target_include_directories(matplotlib_cpp
+  INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/examples>
+    $<INSTALL_INTERFACE:include>
+)
+target_compile_features(matplotlib_cpp INTERFACE
+  cxx_std_17
 )
 
-include_directories()
+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+target_link_libraries(matplotlib_cpp INTERFACE
+  Python3::Python
+  Python3::Module
+)
 
+find_package(Python3 COMPONENTS NumPy)
+if(Python3_NumPy_FOUND)
+  target_link_libraries(matplotlib_cpp INTERFACE
+    Python3::NumPy
+  )
+else()
+  target_compile_definitions(matplotlib_cpp INTERFACE WITHOUT_NUMPY)
+endif()
+
+# project target
 add_executable(${PROJECT_NAME} ${SOURCES})
-
-target_link_libraries(${PROJECT_NAME} ${Python3_LIBRARIES} ${Python3_NumPy_LIBRARIES})
-
+target_link_libraries(${PROJECT_NAME} matplotlib_cpp)
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/library/matplotlib-cpp
         ${CMAKE_SOURCE_DIR}/library/eigen-3.4.0
-        ${Python3_INCLUDE_DIRS}
-        ${Python3_NumPy_INCLUDE_DIRS}
 )
 
 # build doxygen
-message(STATUS "Build documentation open")
-include(cmake/build_doxygen.cmake)
-build_doxygen()
+option(DOXYGEN "Compile doxygen files" OFF)
+if(DOXYGEN)
+    message(STATUS "Build documentation open")
+    include(cmake/build_doxygen.cmake)
+    build_doxygen()
+endif()

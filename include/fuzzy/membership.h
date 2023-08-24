@@ -37,8 +37,6 @@ class Membership {
 
         scalar getHeight(void) const;
         size_t getDiscourseSize(void);
-
-
         const std::vector<scalar> getParamSet(size_t discourse_id);
         const Range getRange(size_t discourse_id);
     private:

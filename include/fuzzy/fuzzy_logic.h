@@ -41,34 +41,51 @@ class Fuzzification {
                   const uint8_t params_num);
         void fuzzify(scalar input);
 
-        void setFactor(scalar factor);
-        scalar getFactor(void);
-
         std::unique_ptr<Membership> membership_;
         std::vector<PremisePair> premise_pairs_;
-    private:
+
         scalar factor_; // quantifying/scaling factor
         scalar bound_;  // upper bound
 };
+
+
+typedef struct Err {
+    scalar err;
+    scalar prev_err;
+    scalar d_err;
+} Err_t;
+
+typedef struct Control {
+    scalar target;
+    scalar actual;
+} Control_t;
 
 class FuzzyLogic {
     public:
         FuzzyLogic();
         ~FuzzyLogic();
 
-        void inference(void);
-        scalar defuzzify(void);
+        scalar algo(Control_t input);
         void setFuzzyRules(const Matrix &rule_table);
 
-        Matrix rule_table_;
+#if FC_USE_MATPLOTLIB
+        void plotFuzzyControlSurface(void);
+#endif
+
         std::unique_ptr<Fuzzification> e;
         std::unique_ptr<Fuzzification> ec;
         std::unique_ptr<Fuzzification> u;
 
     private:
+        void inference(void);
+        scalar defuzzify(void);
         CentroidPair centroid(size_t rule_id, scalar truncation_premise);
+
         int resolution_;
+        Matrix rule_table_;
         std::unordered_map<int, scalar>inference_map_;
+
+        Err_t control_;
 };
 
 }
