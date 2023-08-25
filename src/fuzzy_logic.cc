@@ -149,27 +149,33 @@ void Fuzzification::plotMembershipFunctions(void) {
 
     plt::figure_size(1280, 768);
     size_t discourse_size = membership_->getDiscourseSize();
+    for (size_t id = 0; id < discourse_size; id++) {
+        const auto params = membership_->getParamSet(id);
+        const auto [minimum, maximum] = membership_->getRange(id);
+        double dx = (maximum - minimum) / n;
+        for (int i = 0; i < n; i++) {
+            x.at(i) = minimum + i * dx;
+            y.at(i) = membership_->calculate(x.at(i), params).value_or(0);
+        }
+        plt::plot(x, y, {{"linewidth", "2.0"}});
+        plt::plot(x, w,"r");
+    }
+    plt::ylabel("Degree of membership");
+    plt::xlabel("input/output");
+    plt::xlim(-3.0, 3.0);
+
     switch (membership_->getType()) {
         case membershipType::Triangle:
-            for (size_t id = 0; id < discourse_size; id++) {
-                const auto params = membership_->getParamSet(id);
-                const auto [minimum, maximum] = membership_->getRange(id);
-                double dx = (maximum - minimum) / n;
-                for (int i = 0; i < n; i++) {
-                    x.at(i) = minimum + i * dx;
-                    y.at(i) = membership_->calculate(x.at(i), params).value_or(0);
-                }
-                plt::plot(x, y);
-                plt::plot(x, w,"r--");
-            }
-            plt::ylabel("Degree of membership");
-            plt::xlabel("input/output");
             plt::title("Membership Functions: Triangle");
             plt::save("assets/" + getName() + "_membership_triangle.png");
             break;
         case membershipType::Trapezoid:
+            plt::title("Membership Functions: Trapezoid");
+            plt::save("assets/" + getName() + "_membership_trapezoid.png");
             break;
         case membershipType::Gaussian:
+            plt::title("Membership Functions: Gaussian");
+            plt::save("assets/" + getName() + "_membership_gaussian.png");
             break;
         case membershipType::None:
             /* fall through */

@@ -17,9 +17,11 @@ namespace fc {
 
 
 #ifdef FC_USE_DEBUG_MSG
-#define dbgmsg(fmt, ...) printf("[DEBUG]" fmt "\n", ##__VA_ARGS__)
+#define dbgmsg(fmt, ...) printf("[DEBUG]" fmt, ##__VA_ARGS__)
+#define dbgmsgln(fmt, ...) printf("[DEBUG]" fmt "\n", ##__VA_ARGS__)
 #else
 #define dbgmsg(fmt, ...)
+#define dbgmsgln(fmt, ...)
 #endif
 
 /* basic type definition */

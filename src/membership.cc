@@ -1,5 +1,7 @@
+#include "fmt/core.h"
 #include "fuzzy/membership.h"
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
 
 using namespace fc;
@@ -40,7 +42,7 @@ std::optional<scalar> Membership::calculate(const scalar input, const std::vecto
 
 Range Membership::calculateRange(const membershipType type, const std::vector<scalar>& param_set) {
     Range range;
-    scalar derivation;
+    scalar mean, derivation;
     switch (type) {
         case membershipType::Triangle:
             range = Range{param_set.at(0), param_set.at(2)};
@@ -49,8 +51,9 @@ Range Membership::calculateRange(const membershipType type, const std::vector<sc
             range = Range{param_set.at(0), param_set.at(3)};
             break;
         case membershipType::Gaussian:
+            mean = param_set.at(0);
             derivation = param_set.at(1);
-            range = Range{-3.0 * derivation, 3.0 * derivation};
+            range = Range{-3.0 * derivation + mean, 3.0 * derivation + mean};
             break;
         case membershipType::None:
             /* fall through */
@@ -80,8 +83,16 @@ void Membership::setMembershipParam(const membershipType type,
         param_set.emplace_back(input_params[idx - 1]);
         // store the params set by group according to membership function required params size
         if (idx % size == 0) {
-            dbgmsg("[membership %s] id: %d, (%f, %f, %f)",
-                this->getName().data() , idx / size, param_set.at(0), param_set.at(1), param_set.at(2));
+            std::string s = fmt::format("[membership {}] id:{}, (",this->getName().data() , idx / size);
+            for (auto [i, elem] = std::tuple{1, param_set.begin()}; elem != param_set.end(); i++, elem++) {
+                s.append(fmt::format("{:.2f}",*elem));
+                if (i == size) {
+                    s.append(")\n");
+                } else {
+                    s.append(", ");
+                }
+            }
+            dbgmsg("%s", s.c_str());
             params_.emplace_back(param_set);
             params_range_.emplace_back(calculateRange(type, param_set));
             param_set.clear();
