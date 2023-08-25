@@ -72,14 +72,17 @@ class FuzzyLogic {
         FuzzyLogic(int resolution = 200);
         ~FuzzyLogic();
 
-        scalar algo(Control_t input);
+        scalar algo(Control_t input, bool show_control_info = false);
         void setFuzzyRules(const Matrix &rule_table);
         void getInfo(void);
 
 #if FC_USE_MATPLOTLIB
         void plotFuzzyControlSurface(bool show = false);
         void plotControl(bool show = false);
+        void plotControlErr(bool show = false);
+
         std::vector<Control_t> control_plot_;
+        std::vector<Err_t> control_err_plot_;
 #endif
 
         std::unique_ptr<Fuzzification> e;

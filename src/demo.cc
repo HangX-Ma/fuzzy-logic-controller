@@ -80,14 +80,12 @@ int main (int argc,char *argv[]) {
     control.target = 60.0;
     control.actual = 0.0;
 
-    dbgmsgln("Times    Target    Actual");
     const int times = 10;
     for (int i = 0; i < times; i++) {
-        control.actual += fuzzy.algo(control);
-        dbgmsgln("%04d     %.3f    %.3f", i, control.target, control.actual);
-
+        control.actual += fuzzy.algo(control, true);
     }
     fuzzy.plotControl();
+    fuzzy.plotControlErr();
 
     return 0;
 }

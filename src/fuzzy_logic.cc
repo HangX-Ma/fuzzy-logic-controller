@@ -54,7 +54,8 @@ FuzzyLogic::FuzzyLogic(int resolution)
 
 FuzzyLogic::~FuzzyLogic() {}
 
-scalar FuzzyLogic::algo(Control_t input) {
+static size_t iter = 0;
+scalar FuzzyLogic::algo(Control_t input, bool show_control_info) {
     scalar output;
 
     // calculate the basic control params and normalize them to discourse range
@@ -72,8 +73,17 @@ scalar FuzzyLogic::algo(Control_t input) {
     if (output >= u->bound_) output = u->bound_;
     if (output <= -u->bound_) output = -u->bound_;
 
+    if (show_control_info) {
+        if (iter == 0) {
+            dbgmsgln("Times    Target    Actual    Error    DError    PError");
+        }
+        dbgmsgln("%04llu     %06.2f    %06.2f    %06.3f   %06.3f    %06.3f",
+            iter++, input.target, input.actual, control_.err, control_.d_err, control_.prev_err);
+    }
+
 #if FC_USE_MATPLOTLIB
     control_plot_.emplace_back(Control_t{input.target, input.actual});
+    control_err_plot_.emplace_back(control_);
 #endif
 
     return output;
@@ -267,11 +277,43 @@ void FuzzyLogic::plotControl(bool show) {
     plt::ylabel("value");
     plt::xlabel("times");
     plt::xlim((size_t)0, n);
-    plt::title("Fuzzy Control Demo");
+    plt::title("Fuzzy Control Demo: Target and Actual");
     if (show) {
         plt::show();
     } else {
-        plt::save("assets/fuzzy_control_demo.png");
+        plt::save("assets/fc_demo_target_and_actual.png");
+    }
+    plt::close();
+}
+
+
+void FuzzyLogic::plotControlErr(bool show) {
+    size_t n = control_err_plot_.size();
+    std::vector<double> x(n), y1(n), y2(n), w(n, 0);
+
+    for (size_t i = 0; i < n; i++) {
+        x.at(i)  = i;
+        y1.at(i) = control_err_plot_.at(i).err;
+        y2.at(i) = control_err_plot_.at(i).d_err;
+    }
+
+    // determine the figure config
+    if (!show) {
+        plt::figure_size(1280, 768);
+    }
+
+    plt::named_plot("Error", x, y1);
+    plt::named_plot("DError", x, y2);
+    plt::plot(x, w,"r--");
+    plt::ylabel("value");
+    plt::xlabel("times");
+    plt::xlim((size_t)0, n);
+    plt::title("Fuzzy Control Demo: Error and Derivative Error");
+    plt::legend();
+    if (show) {
+        plt::show();
+    } else {
+        plt::save("assets/fc_demo_err_and_derr.png");
     }
     plt::close();
 }
