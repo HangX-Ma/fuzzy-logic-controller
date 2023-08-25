@@ -44,8 +44,8 @@ const std::string& Fuzzification::getName(void) {
 }
 
 
-FuzzyLogic::FuzzyLogic()
-    : control_(Err_t{0, 0, 0})
+FuzzyLogic::FuzzyLogic(int resolution)
+    : resolution_(resolution), control_(Err_t{0, 0, 0})
 {
     e  = std::make_unique<Fuzzification>("e");
     ec = std::make_unique<Fuzzification>("ec");
@@ -71,6 +71,10 @@ scalar FuzzyLogic::algo(Control_t input) {
 
     if (output >= u->bound_) output = u->bound_;
     if (output <= -u->bound_) output = -u->bound_;
+
+#if FC_USE_MATPLOTLIB
+    control_plot_.emplace_back(Control_t{input.target, input.actual});
+#endif
 
     return output;
 }
@@ -153,14 +157,15 @@ void FuzzyLogic::getInfo(void) {
 }
 
 #if FC_USE_MATPLOTLIB
-#include "matplotlibcpp.h"
 
+#include "matplotlibcpp.h"
 namespace plt = matplotlibcpp;
 
 void Fuzzification::plotMembershipFunctions(void) {
     int n = 500;
     std::vector<double> x(n), y(n), w(n, 0);
 
+    plt::figure();
     plt::figure_size(1280, 768);
     size_t discourse_size = membership_->getDiscourseSize();
     for (size_t id = 0; id < discourse_size; id++) {
@@ -226,6 +231,27 @@ void FuzzyLogic::plotFuzzyControlSurface(void) {
     plt::title("Fuzzy Control Surface");
     plt::show();
     // plt::save("assets/fuzzy_control_surface.png");
+}
+
+void FuzzyLogic::plotControl(void) {
+    size_t n = control_plot_.size();
+    std::vector<double> x(n), y(n), w(n);
+
+    for (size_t i = 0; i < n; i++) {
+        x.at(i) = i;
+        y.at(i) = control_plot_.at(i).actual;
+        w.at(i) = control_plot_.at(i).target;
+    }
+
+    plt::figure();
+    plt::figure_size(1280, 768);
+    plt::plot(x, y);
+    plt::plot(x, w,"r--");
+    plt::ylabel("value");
+    plt::xlabel("times");
+    plt::xlim((size_t)0, n);
+    plt::title("Fuzzy Control Demo");
+    plt::save("assets/fuzzy_control_demo.png");
 }
 
 #endif

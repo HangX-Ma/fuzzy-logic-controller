@@ -4,9 +4,9 @@
 #include <cmath>
 #include <vector>
 
-constexpr const size_t E_PARAMS_NUM = 21;
-constexpr const size_t EC_PARAMS_NUM = 28;
-constexpr const size_t U_PARAMS_NUM = 14;
+constexpr const size_t TRIANGLE_PARAMS_NUM = 21;
+constexpr const size_t TRAPEZOID_PARAMS_NUM = 28;
+constexpr const size_t GAUSSIAN_PARAMS_NUM = 14;
 
 int main (int argc,char *argv[]) {
     FC_UNUSED(argc);
@@ -14,7 +14,7 @@ int main (int argc,char *argv[]) {
 
 
     // membership triangle params
-    fc::scalar e_params[E_PARAMS_NUM] = {
+    fc::scalar triangle_params[TRIANGLE_PARAMS_NUM] = {
         -3, -3, -2,
         -3, -2, -1,
         -2, -1,  0,
@@ -24,7 +24,7 @@ int main (int argc,char *argv[]) {
          2,  3,  3,
     };
     // membership trapezoid params
-    fc::scalar ec_params[EC_PARAMS_NUM] = {
+    fc::scalar trapezoid_params[TRAPEZOID_PARAMS_NUM] = {
         -3.0, -3.0, -2.5, -2.0,
         -3.0, -2.5, -1.5, -1.0,
         -2.0, -1.5, -0.5,  0.0,
@@ -34,7 +34,7 @@ int main (int argc,char *argv[]) {
          2.0,  2.5,  3.0,  3.0,
     };
     // membership gaussian params
-    fc::scalar u_params[U_PARAMS_NUM] = {
+    fc::scalar gaussian_params[GAUSSIAN_PARAMS_NUM] = {
         -3.0, 0.5,
         -2.0, 0.4,
         -1.0, 0.3,
@@ -43,11 +43,15 @@ int main (int argc,char *argv[]) {
          2.0, 0.4,
          3.0, 0.5,
     };
+    FC_UNUSED(trapezoid_params);
+    FC_UNUSED(gaussian_params);
 
     fc::FuzzyLogic fuzzy;
-    fuzzy.e->init(400, false, fc::membershipType::Triangle, e_params, E_PARAMS_NUM);
-    fuzzy.ec->init(200, false, fc::membershipType::Trapezoid, ec_params, EC_PARAMS_NUM);
-    fuzzy.u->init(30, true, fc::membershipType::Gaussian, u_params, U_PARAMS_NUM);
+    fuzzy.e->init(100, false, fc::membershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
+    // fuzzy.ec->init(200, false, fc::membershipType::Trapezoid, trapezoid_params, TRAPEZOID_PARAMS_NUM);
+    // fuzzy.u->init(30, true, fc::membershipType::Gaussian, gaussian_params, GAUSSIAN_PARAMS_NUM);
+    fuzzy.ec->init(50, false, fc::membershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
+    fuzzy.u->init(30, true, fc::membershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
 
     size_t rows = fuzzy.e->membership_->getDiscourseSize();
     size_t cols = fuzzy.ec->membership_->getDiscourseSize();
@@ -70,6 +74,20 @@ int main (int argc,char *argv[]) {
     fuzzy.u->plotMembershipFunctions();
 
     fuzzy.getInfo();
+
+
+    fc::Control_t control;
+    control.target = 60.0;
+    control.actual = 0.0;
+
+    dbgmsgln("Times    Target    Actual");
+    const int times = 50;
+    for (int i = 0; i < times; i++) {
+        control.actual += fuzzy.algo(control);
+        dbgmsgln("%04d     %.3f    %.3f", i, control.target, control.actual);
+
+    }
+    fuzzy.plotControl();
 
     return 0;
 }

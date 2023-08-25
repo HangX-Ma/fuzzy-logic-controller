@@ -1,4 +1,6 @@
 #pragma once
+#ifndef __MATPLOTLIBCPP__H__
+#define __MATPLOTLIBCPP__H__
 
 // Python headers must be included before any system headers, since
 // they define _POSIX_C_SOURCE
@@ -2961,3 +2963,5 @@ private:
 };
 
 } // end namespace matplotlibcpp
+
+#endif  //!__MATPLOTLIBCPP__H__

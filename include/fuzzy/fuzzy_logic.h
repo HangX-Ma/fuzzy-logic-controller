@@ -69,7 +69,7 @@ typedef struct Control {
 
 class FuzzyLogic {
     public:
-        FuzzyLogic();
+        FuzzyLogic(int resolution = 200);
         ~FuzzyLogic();
 
         scalar algo(Control_t input);
@@ -78,6 +78,8 @@ class FuzzyLogic {
 
 #if FC_USE_MATPLOTLIB
         void plotFuzzyControlSurface(void);
+        void plotControl(void);
+        std::vector<Control_t> control_plot_;
 #endif
 
         std::unique_ptr<Fuzzification> e;
