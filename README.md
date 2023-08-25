@@ -1,6 +1,6 @@
 # A fuzzy logic controller
 
-Realize the basic function of fuzzy logic controller. User can select _Triangle_, _Trapezoid_, _Gaussian_ membership functions to do fuzzification. _Centroid (COG)_ method is used to defuzzification. To enhance the performance of this controller, mix the fuzzy controller with a parallel integrator and add a module to prevent integral saturation.
+Realize the basic function of fuzzy logic controller. User can select _Triangle_, _Trapezoid_, _Gaussian_ membership functions to do **fuzzification**. The **inference** process will select the highest weight rule, if exist some rules that points to the same output discourse. _Centroid (COG)_ method is used to **defuzzification**. To enhance the performance of this controller, mix the fuzzy controller with a parallel integrator and add a module to prevent integral saturation.
 
 ## Environment
 
@@ -11,12 +11,13 @@ Realize the basic function of fuzzy logic controller. User can select _Triangle_
 
 ## Schedule
 
-- [ ] Uses [lava/matplotlib-cpp](https://github.com/lava/matplotlib-cpp) wrapper to do visualization .
-- [ ] Refactor code following [Google C++ open source project style guide](https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/contents/).
+- [x] Rewrite the core logic and fix the essential fuzzy logic problems.
+- [x] Uses [lava/matplotlib-cpp](https://github.com/lava/matplotlib-cpp) wrapper to do visualization.
+- [x] Refactor code following [Google C++ open source project style guide](https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/contents/).
 
-## Example Usage
+## Usage
 
-Compile the project after you download this repository.
+Compile the project after you download this repository. You can find the output executable file in `build/bin`.
 
 ```shell
 git clone https://github.com/HangX-Ma/fuzzy-logic-controller.git
@@ -25,11 +26,62 @@ cmake -B build -S .
 cmake --build build
 ```
 
+This repository only provide three membership functions: _Triangle_, _Trapezoid_, _Gaussian_. You need to provide your configuration parameters by yourself.
+
+<table>
+<tr>
+    <td><img src="assets/u_membership_triangle.png" alt="Membership function: Triangle, HangX-Ma" width=400 /></td>
+    <td><img src="assets/u_membership_trapezoid.png" alt="Membership function: Trapezoid, HangX-Ma" width=400 /></td>
+    <td><img src="assets/u_membership_gaussian.png" alt="Membership function: Gaussian, HangX-Ma" width=400 /></td>
+</tr>
+<tr>
+    <td align="center"><font size="2" color="#999"><u>Membership function: Triangle, HangX-Ma</u></font></td>
+    <td align="center"><font size="2" color="#999"><u>Membership function: Trapezoid, HangX-Ma</u></font></td>
+    <td align="center"><font size="2" color="#999"><u>Membership function: Gaussian, HangX-Ma</u></font></td>
+</tr>
+</table>
+
+You can annotate these definitions in `CMakeLists.txt` to switch off/on those relative functions.
+
+```cmake
+# CMakeLists.txt
+add_definitions(
+    "-DFC_USE_DOUBLE"
+    "-DFC_USE_MATPLOTLIB"
+    "-DFC_USE_DEBUG_MSG"
+    "-DFC_USE_INFO_MSG"
+)
+```
+
+## Demo
+
 <div align="center">
     <img src="assets/fuzzy_control_surface.png" alt="Fuzzy control surface, HangX-Ma" width=400 />
     <br>
     <font size="2" color="#999"><u>Fuzzy control surface, HangX-Ma</u></font>
+    <br></br>
 </div>
+
+```bash
+[INFO]Fuzzy logic controller info:
+[INFO]=> discourse e:  [-100.000, 100.000]
+[INFO]=> discourse ec: [-50.000, 50.000]
+[INFO]=> discourse u:  [-30.000, 30.000]
+[INFO]=> error quantifying factor [Ke]:             0.0700
+[INFO]=> derivative error quantifying factor [Kec]: 0.1400
+[INFO]=> output scaling factor [Ku]:                4.2857
+```
+
+<table>
+<tr>
+    <td><img src="assets/fc_demo_target_and_actual.png" alt="FC Demo: Target and Actual, HangX-Ma" width=500 /></td>
+    <td><img src="assets/fc_demo_err_and_derr.png" alt="FC Demo: Error and Derivative Error, HangX-Ma" width=500 /></td>
+</tr>
+<tr>
+    <td align="center"><font size="2" color="#999"><u>FC Demo: Target and Actual, HangX-Ma</u></font></td>
+    <td align="center"><font size="2" color="#999"><u>FC Demo: Error and Derivative Error, HangX-Ma</u></font></td>
+</tr>
+</table>
 
 ## Fuzzy Logic Control Basic Concept
 
