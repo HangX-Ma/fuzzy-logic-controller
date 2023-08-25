@@ -43,7 +43,7 @@ class Fuzzification {
         const std::string& getName(void);
 
 #if FC_USE_MATPLOTLIB
-        void plotMembershipFunctions(void);
+        void plotMembershipFunctions(bool show = false);
 #endif
 
         std::unique_ptr<Membership> membership_;
@@ -77,8 +77,8 @@ class FuzzyLogic {
         void getInfo(void);
 
 #if FC_USE_MATPLOTLIB
-        void plotFuzzyControlSurface(void);
-        void plotControl(void);
+        void plotFuzzyControlSurface(bool show = false);
+        void plotControl(bool show = false);
         std::vector<Control_t> control_plot_;
 #endif
 

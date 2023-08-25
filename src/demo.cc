@@ -68,7 +68,7 @@ int main (int argc,char *argv[]) {
 
     fuzzy.setFuzzyRules(rule_table);
 
-    fuzzy.plotFuzzyControlSurface();
+    fuzzy.plotFuzzyControlSurface(true);
     fuzzy.e->plotMembershipFunctions();
     fuzzy.ec->plotMembershipFunctions();
     fuzzy.u->plotMembershipFunctions();
@@ -81,7 +81,7 @@ int main (int argc,char *argv[]) {
     control.actual = 0.0;
 
     dbgmsgln("Times    Target    Actual");
-    const int times = 50;
+    const int times = 10;
     for (int i = 0; i < times; i++) {
         control.actual += fuzzy.algo(control);
         dbgmsgln("%04d     %.3f    %.3f", i, control.target, control.actual);

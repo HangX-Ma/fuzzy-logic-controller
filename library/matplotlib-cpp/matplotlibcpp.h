@@ -2634,7 +2634,7 @@ inline void rcparams(const std::map<std::string, std::string>& keywords = {}) {
           PyDict_SetItemString(kwargs, it->first.c_str(), PyLong_FromLong(std::stoi(it->second.c_str())));
         else PyDict_SetItemString(kwargs, it->first.c_str(), PyString_FromString(it->second.c_str()));
     }
-    
+
     PyObject * update = PyObject_GetAttrString(detail::_interpreter::get().s_python_function_rcparams, "update");
     PyObject * res = PyObject_Call(update, args, kwargs);
     if(!res) throw std::runtime_error("Call to rcParams.update() failed.");

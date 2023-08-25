@@ -161,12 +161,15 @@ void FuzzyLogic::getInfo(void) {
 #include "matplotlibcpp.h"
 namespace plt = matplotlibcpp;
 
-void Fuzzification::plotMembershipFunctions(void) {
+void Fuzzification::plotMembershipFunctions(bool show) {
     int n = 500;
     std::vector<double> x(n), y(n), w(n, 0);
 
-    plt::figure();
-    plt::figure_size(1280, 768);
+    // determine the figure config
+    if (!show) {
+        plt::figure_size(1280, 768);
+    }
+
     size_t discourse_size = membership_->getDiscourseSize();
     for (size_t id = 0; id < discourse_size; id++) {
         const auto params = membership_->getParamSet(id);
@@ -183,27 +186,32 @@ void Fuzzification::plotMembershipFunctions(void) {
     plt::xlabel("input/output");
     plt::xlim(-3.0, 3.0);
 
-    switch (membership_->getType()) {
-        case membershipType::Triangle:
-            plt::title("Membership Functions: Triangle");
-            plt::save("assets/" + getName() + "_membership_triangle.png");
-            break;
-        case membershipType::Trapezoid:
-            plt::title("Membership Functions: Trapezoid");
-            plt::save("assets/" + getName() + "_membership_trapezoid.png");
-            break;
-        case membershipType::Gaussian:
-            plt::title("Membership Functions: Gaussian");
-            plt::save("assets/" + getName() + "_membership_gaussian.png");
-            break;
-        case membershipType::None:
-            /* fall through */
-        default:
-            throw std::invalid_argument("[membership error] set membership type first");
+    if (show) {
+        plt::show();
+    } else {
+        switch (membership_->getType()) {
+            case membershipType::Triangle:
+                plt::title("Membership Functions: Triangle");
+                plt::save("assets/" + getName() + "_membership_triangle.png");
+                break;
+            case membershipType::Trapezoid:
+                plt::title("Membership Functions: Trapezoid");
+                plt::save("assets/" + getName() + "_membership_trapezoid.png");
+                break;
+            case membershipType::Gaussian:
+                plt::title("Membership Functions: Gaussian");
+                plt::save("assets/" + getName() + "_membership_gaussian.png");
+                break;
+            case membershipType::None:
+                /* fall through */
+            default:
+                throw std::invalid_argument("[membership error] set membership type first");
+        }
     }
+    plt::close();
 }
 
-void FuzzyLogic::plotFuzzyControlSurface(void) {
+void FuzzyLogic::plotFuzzyControlSurface(bool show) {
     std::vector<std::vector<double>> x, y, z;
     double e_discourse_bound = static_cast<double>(e->membership_->getDiscourseSize() / 2);
     double ec_discourse_bound = static_cast<double>(ec->membership_->getDiscourseSize() / 2);
@@ -222,18 +230,25 @@ void FuzzyLogic::plotFuzzyControlSurface(void) {
         z.push_back(z_row);
     }
 
+    // determine the figure config
+    if (!show) {
+        plt::figure_size(1280, 768);
+    }
     // elevation=18, azimuth=-133
-    long id = plt::figure();
-    plt::plot_surface(x, y, z, {{"linewidth", "2"}, {"antialiased", "True"}}, id);
+    plt::plot_surface(x, y, z, {{"linewidth", "2"}, {"antialiased", "True"}});
     plt::xlabel("e");
     plt::ylabel("ec");
     plt::set_zlabel("u");
     plt::title("Fuzzy Control Surface");
-    plt::show();
-    // plt::save("assets/fuzzy_control_surface.png");
+    if (show) {
+        plt::show();
+    } else {
+        plt::save("assets/fuzzy_control_surface.png");
+    }
+    plt::close();
 }
 
-void FuzzyLogic::plotControl(void) {
+void FuzzyLogic::plotControl(bool show) {
     size_t n = control_plot_.size();
     std::vector<double> x(n), y(n), w(n);
 
@@ -243,15 +258,22 @@ void FuzzyLogic::plotControl(void) {
         w.at(i) = control_plot_.at(i).target;
     }
 
-    plt::figure();
-    plt::figure_size(1280, 768);
+    // determine the figure config
+    if (!show) {
+        plt::figure_size(1280, 768);
+    }
     plt::plot(x, y);
     plt::plot(x, w,"r--");
     plt::ylabel("value");
     plt::xlabel("times");
     plt::xlim((size_t)0, n);
     plt::title("Fuzzy Control Demo");
-    plt::save("assets/fuzzy_control_demo.png");
+    if (show) {
+        plt::show();
+    } else {
+        plt::save("assets/fuzzy_control_demo.png");
+    }
+    plt::close();
 }
 
 #endif
