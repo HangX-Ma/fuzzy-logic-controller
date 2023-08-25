@@ -51,6 +51,9 @@ file(GLOB_RECURSE SOURCES
     "src/*.*"
 )
 
+# format library
+add_subdirectory(${CMAKE_SOURCE_DIR}/library/fmt-10.1.0 EXCLUDE_FROM_ALL)
+
 # Library target
 add_library(matplotlib_cpp INTERFACE)
 target_include_directories(matplotlib_cpp
@@ -79,7 +82,7 @@ endif()
 
 # project target
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} matplotlib_cpp)
+target_link_libraries(${PROJECT_NAME} matplotlib_cpp fmt-header-only)
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${CMAKE_SOURCE_DIR}/include
