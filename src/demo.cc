@@ -69,5 +69,7 @@ int main (int argc,char *argv[]) {
     fuzzy.ec->plotMembershipFunctions();
     fuzzy.u->plotMembershipFunctions();
 
+    fuzzy.getInfo();
+
     return 0;
 }

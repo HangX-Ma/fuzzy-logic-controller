@@ -13,15 +13,58 @@
 #include <limits>
 #include "Eigen/Eigen"
 
+#ifndef ANSI_COLOR_RED
+#define ANSI_COLOR_RED              "\x1b[1;31m"
+#endif
+
+#ifndef ANSI_COLOR_GREEN
+#define ANSI_COLOR_GREEN            "\x1b[21;32m"
+#endif
+
+#ifndef ANSI_COLOR_YELLOW
+#define ANSI_COLOR_YELLOW           "\x1b[21;33m"
+#endif
+
+#ifndef ANSI_COLOR_BLUE
+#define ANSI_COLOR_BLUE             "\x1b[21;34m"
+#endif
+
+#ifndef ANSI_COLOR_MAGENTA
+#define ANSI_COLOR_MAGENTA          "\x1b[21;35m"
+#endif
+
+#ifndef ANSI_COLOR_CYAN
+#define ANSI_COLOR_CYAN             "\x1b[21;36m"
+#endif
+
+#ifndef ANSI_COLOR_WHITE
+#define ANSI_COLOR_WHITE            "\x1b[21;37m"
+#endif
+
+#ifndef ANSI_COLOR_BRIGHT_BLACK
+#define ANSI_COLOR_BRIGHT_BLACK     "\x1b[21;90m"
+#endif
+
+#ifndef ANSI_COLOR_RESET
+#define ANSI_COLOR_RESET            "\x1b[0m"
+#endif
 namespace fc {
 
 
 #ifdef FC_USE_DEBUG_MSG
-#define dbgmsg(fmt, ...) printf("[DEBUG]" fmt, ##__VA_ARGS__)
-#define dbgmsgln(fmt, ...) printf("[DEBUG]" fmt "\n", ##__VA_ARGS__)
+#define dbgmsg(fmt, ...) printf(ANSI_COLOR_BLUE "[DEBUG]" fmt ANSI_COLOR_RESET, ##__VA_ARGS__)
+#define dbgmsgln(fmt, ...) printf(ANSI_COLOR_BLUE "[DEBUG]" fmt ANSI_COLOR_RESET"\n", ##__VA_ARGS__)
 #else
 #define dbgmsg(fmt, ...)
 #define dbgmsgln(fmt, ...)
+#endif
+
+#ifdef FC_USE_INFO_MSG
+#define infomsg(fmt, ...) printf(ANSI_COLOR_YELLOW "[INFO]" fmt ANSI_COLOR_RESET, ##__VA_ARGS__)
+#define infomsgln(fmt, ...) printf(ANSI_COLOR_YELLOW "[INFO]" fmt ANSI_COLOR_RESET"\n", ##__VA_ARGS__)
+#else
+#define infomsg(fmt, ...)
+#define infomsgln(fmt, ...)
 #endif
 
 /* basic type definition */
@@ -47,37 +90,5 @@ const scalar inf = std::numeric_limits<scalar>::infinity();
 const scalar eps = 1e-6;
 
 }
-
-#ifndef ANSI_COLOR_RED
-#define ANSI_COLOR_RED "\x1b[1;31m"
-#endif
-
-#ifndef ANSI_COLOR_GREEN
-#define ANSI_COLOR_GREEN "\x1b[1;32m"
-#endif
-
-#ifndef ANSI_COLOR_YELLOW
-#define ANSI_COLOR_YELLOW "\x1b[1;33m"
-#endif
-
-#ifndef ANSI_COLOR_BLUE
-#define ANSI_COLOR_BLUE "\x1b[1;34m"
-#endif
-
-#ifndef ANSI_COLOR_MAGENTA
-#define ANSI_COLOR_MAGENTA "\x1b[1;35m"
-#endif
-
-#ifndef ANSI_COLOR_CYAN
-#define ANSI_COLOR_CYAN "\x1b[1;36m"
-#endif
-
-#ifndef ANSI_COLOR_WHITE
-#define ANSI_COLOR_WHITE "\x1b[1;37m"
-#endif
-
-#ifndef ANSI_COLOR_RESET
-#define ANSI_COLOR_RESET "\x1b[0m"
-#endif
 
 #endif  //!__FC_BASE__H__

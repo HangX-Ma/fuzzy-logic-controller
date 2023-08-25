@@ -74,6 +74,7 @@ class FuzzyLogic {
 
         scalar algo(Control_t input);
         void setFuzzyRules(const Matrix &rule_table);
+        void getInfo(void);
 
 #if FC_USE_MATPLOTLIB
         void plotFuzzyControlSurface(void);

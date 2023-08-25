@@ -20,8 +20,10 @@ void Fuzzification::init(const scalar bound,
 {
     membership_->setMembershipParam(type, input_params, params_num);
     bound_ = bound;
-    factor_ = bound_ / static_cast<scalar>(membership_->getDiscourseSize());
-    if (reverse) factor_ = 1 / factor_;
+    factor_ = static_cast<scalar>(membership_->getDiscourseSize()) / bound_;
+    if (reverse) {
+        factor_ = 1 / factor_;
+    }
 }
 
 void Fuzzification::fuzzify(scalar input) {
@@ -137,6 +139,18 @@ void FuzzyLogic::setFuzzyRules(const Matrix &rule_table) {
     rule_table_ = rule_table;
 }
 
+
+void FuzzyLogic::getInfo(void) {
+    std::cout << std::endl;
+    infomsgln("Fuzzy logic controller info:");
+    infomsgln("=> discourse e:  [%.3f, %.3f]", -e->bound_, e->bound_);
+    infomsgln("=> discourse ec: [%.3f, %.3f]", -ec->bound_, ec->bound_);
+    infomsgln("=> discourse u:  [%.3f, %.3f]", -u->bound_, u->bound_);
+    infomsgln("=> error quantifying factor [Ke]:             %.4f", e->factor_);
+    infomsgln("=> derivative error quantifying factor [Kec]: %.4f", ec->factor_);
+    infomsgln("=> output scaling factor [Ku]:                %.4f", u->factor_);
+    std::cout << std::endl;
+}
 
 #if FC_USE_MATPLOTLIB
 #include "matplotlibcpp.h"
