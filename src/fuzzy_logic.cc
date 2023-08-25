@@ -35,6 +35,7 @@ void Fuzzification::fuzzify(scalar input) {
         premise = membership_->calculate(input, membership_->getParamSet(idx));
         if (premise != std::nullopt && fabs(premise.value()) >= fc::eps) {
             premise_pairs_.emplace_back(std::make_pair(premise.value(), idx));
+            dbgmsgln("[fuzzify] %s - premise: %.3f, discourse ID: %llu", getName().c_str(), premise.value(), idx);
         }
     }
 }
@@ -95,12 +96,17 @@ void FuzzyLogic::inference(void) {
     size_t rows = e->premise_pairs_.size();
     size_t cols = ec->premise_pairs_.size();
 
+    size_t e_discourse_size  = e->membership_->getDiscourseSize();
+    size_t ec_discourse_size = ec->membership_->getDiscourseSize();
+
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
-            const auto [e_premise, e_discourse_id] = e->premise_pairs_.at(i);
+            const auto [e_premise, e_discourse_id]   = e->premise_pairs_.at(i);
             const auto [ec_premise, ec_discourse_id] = ec->premise_pairs_.at(j);
             inference_set.weight = e_premise * ec_premise;
-            inference_set.rule = static_cast<int>(rule_table_(e_discourse_id, ec_discourse_id));
+            inference_set.rule = static_cast<int>(rule_table_(e_discourse_size - 1 - e_discourse_id, ec_discourse_size - 1 - ec_discourse_id));
+            dbgmsgln("[Inference] rule %llu => RuleTable(%llu, %llu)=%d, Weight=%.4f",
+                (i * rows + j), e_discourse_id, ec_discourse_id, inference_set.rule, inference_set.weight);
             // If the rule overlaps the map stored, we need to keep the higher weight one.
             if(auto res = inference_map_.find(inference_set.rule); res != inference_map_.end()) {
                 res->second = fmax(inference_set.weight, res->second);
@@ -136,10 +142,13 @@ scalar FuzzyLogic::defuzzify(void) {
     scalar num = 0, den = 0;
     for (const auto& [rule, weight]: inference_map_) {
         const size_t rule_id = static_cast<size_t>(rule) + u->membership_->getDiscourseSize() / 2;
+        dbgmsgln("[defuzzify] rule id %d, Weight %.4f", rule, weight);
         const auto [x_centroid, area] = centroid(rule_id, weight);
         num += x_centroid;
         den += area;
     }
+    // prepare for next iteration
+    inference_map_.clear();
 
     return num / den;
 }
@@ -226,8 +235,6 @@ void FuzzyLogic::plotFuzzyControlSurface(bool show) {
     double e_discourse_bound = static_cast<double>(e->membership_->getDiscourseSize() / 2);
     double ec_discourse_bound = static_cast<double>(ec->membership_->getDiscourseSize() / 2);
 
-    printf("Rows(%f,%f) Cols(%f,%f)\n", -e_discourse_bound, e_discourse_bound, -ec_discourse_bound, ec_discourse_bound);
-
     for (double i = -e_discourse_bound; i <= e_discourse_bound;  i++) {
         std::vector<double> x_row, y_row, z_row;
         for (double j = -ec_discourse_bound; j <= ec_discourse_bound;  j++) {
@@ -244,7 +251,7 @@ void FuzzyLogic::plotFuzzyControlSurface(bool show) {
     if (!show) {
         plt::figure_size(1280, 768);
     }
-    // elevation=18, azimuth=-133
+    // elevation=20, azimuth=45
     plt::plot_surface(x, y, z, {{"linewidth", "2"}, {"antialiased", "True"}});
     plt::xlabel("e");
     plt::ylabel("ec");

@@ -58,13 +58,13 @@ int main (int argc,char *argv[]) {
 
     fc::Matrix rule_table;
     rule_table.resize(rows, cols);
-    rule_table << NB,NB,NM,NM,NS,ZO,ZO,
-                  NB,NB,NM,NS,NS,ZO,PS,
-                  NM,NM,NM,NS,ZO,PS,PS,
-                  NM,NM,NS,ZO,PS,PM,PM,
-                  NS,NS,ZO,PS,PS,PM,PM,
-                  NS,ZO,PS,PM,PM,PM,PB,
-                  ZO,ZO,PM,PM,PM,PB,PB;
+    rule_table << PB,PB,PM,PM,PS,ZO,ZO,
+                  PB,PM,PM,PS,PS,ZO,NS,
+                  PM,PM,PS,PS,ZO,NS,NS,
+                  PM,PM,PS,ZO,NS,NM,NM,
+                  PS,PS,ZO,NS,NS,NM,NM,
+                  PS,ZO,NS,NM,NM,NB,NB,
+                  ZO,ZO,NM,NM,NM,NB,NB;
 
     fuzzy.setFuzzyRules(rule_table);
 
@@ -80,7 +80,7 @@ int main (int argc,char *argv[]) {
     control.target = 60.0;
     control.actual = 0.0;
 
-    const int times = 10;
+    const int times = 20;
     for (int i = 0; i < times; i++) {
         control.actual += fuzzy.algo(control, true);
     }
