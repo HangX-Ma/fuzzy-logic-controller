@@ -4,8 +4,12 @@
 
 using namespace fc;
 
+//? Fuzzification
 Fuzzification::Fuzzification(const std::string name, scalar bound)
-    : factor_(0), bound_(bound), name_(name)
+    : name_(name),
+      state_(FuzzyProcess::FuzzyUninit),
+      factor_(0),
+      bound_(bound)
 {
     membership_ = std::make_unique<Membership>(name);
 }
@@ -24,6 +28,8 @@ void Fuzzification::init(const scalar bound,
     if (reverse) {
         factor_ = 1 / factor_;
     }
+
+    state_ = FuzzyProcess::FuzzyInit;
 }
 
 void Fuzzification::fuzzify(scalar input) {
@@ -40,13 +46,44 @@ void Fuzzification::fuzzify(scalar input) {
     }
 }
 
+void Fuzzification::setFactor(const scalar ratio, const bool reverse) {
+    if (state_ != FuzzyProcess::FuzzyInit) {
+        dbgmsgln("[fuzzification] please init first");
+        return;
+    }
+
+    factor_ =  ratio * static_cast<scalar>(membership_->getDiscourseSize()) / bound_;
+    if (reverse) {
+        factor_ = 1 / factor_;
+    }
+}
+
+void Fuzzification::setBound(scalar bound) {
+    if (state_ != FuzzyProcess::FuzzyInit) {
+        dbgmsgln("[fuzzification] please init first");
+        return;
+    }
+
+    bound_ = bound;
+}
+
 const std::string& Fuzzification::getName(void) {
     return name_;
 }
 
+scalar Fuzzification::getFactor(void) {
+    return factor_;
+}
 
+scalar Fuzzification::getBound(void) {
+    return bound_;
+}
+
+
+//? FuzzyLogic
 FuzzyLogic::FuzzyLogic(int resolution)
-    : resolution_(resolution), control_(Err_t{0, 0, 0})
+    : resolution_(resolution),
+      control_(Err_t{0, 0, 0})
 {
     e  = std::make_unique<Fuzzification>("e");
     ec = std::make_unique<Fuzzification>("ec");
@@ -60,8 +97,8 @@ scalar FuzzyLogic::algo(Control_t input, bool show_control_info) {
     scalar output;
 
     // calculate the basic control params and normalize them to discourse range
-    control_.err   = e->factor_ * (input.target - input.actual);
-    control_.d_err = ec->factor_ * (control_.err - control_.prev_err);
+    control_.err   = e->getFactor() * (input.target - input.actual);
+    control_.d_err = ec->getFactor() * (control_.err - control_.prev_err);
     control_.prev_err = control_.err;
 
     e->fuzzify(control_.err);
@@ -69,10 +106,10 @@ scalar FuzzyLogic::algo(Control_t input, bool show_control_info) {
 
     inference();
 
-    output = defuzzify() * u->factor_;
+    output = defuzzify() * u->getFactor();
 
-    if (output >= u->bound_) output = u->bound_;
-    if (output <= -u->bound_) output = -u->bound_;
+    if (output >= u->getBound()) output = u->getBound();
+    if (output <= -u->getBound()) output = -u->getBound();
 
     if (show_control_info) {
         if (iter == 0) {
@@ -166,12 +203,12 @@ void FuzzyLogic::setFuzzyRules(const Matrix &rule_table) {
 void FuzzyLogic::getInfo(void) {
     std::cout << std::endl;
     infomsgln("Fuzzy logic controller info:");
-    infomsgln("=> discourse e:  [%.3f, %.3f]", -e->bound_, e->bound_);
-    infomsgln("=> discourse ec: [%.3f, %.3f]", -ec->bound_, ec->bound_);
-    infomsgln("=> discourse u:  [%.3f, %.3f]", -u->bound_, u->bound_);
-    infomsgln("=> error quantifying factor [Ke]:             %.4f", e->factor_);
-    infomsgln("=> derivative error quantifying factor [Kec]: %.4f", ec->factor_);
-    infomsgln("=> output scaling factor [Ku]:                %.4f", u->factor_);
+    infomsgln("=> discourse e:  [%.3f, %.3f]", -e->getBound(), e->getBound());
+    infomsgln("=> discourse ec: [%.3f, %.3f]", -ec->getBound(), ec->getBound());
+    infomsgln("=> discourse u:  [%.3f, %.3f]", -u->getBound(), u->getBound());
+    infomsgln("=> error quantifying factor [Ke]:             %.4f", e->getFactor());
+    infomsgln("=> derivative error quantifying factor [Kec]: %.4f", ec->getFactor());
+    infomsgln("=> output scaling factor [Ku]:                %.4f", u->getFactor());
     std::cout << std::endl;
 }
 
@@ -265,7 +302,7 @@ void FuzzyLogic::plotFuzzyControlSurface(bool show) {
     plt::close();
 }
 
-void FuzzyLogic::plotControl(bool show) {
+void FuzzyLogic::plotControl(std::string filename_suffix, bool show) {
     size_t n = control_plot_.size();
     std::vector<double> x(n), y(n), w(n);
 
@@ -279,22 +316,23 @@ void FuzzyLogic::plotControl(bool show) {
     if (!show) {
         plt::figure_size(1280, 768);
     }
-    plt::plot(x, y);
-    plt::plot(x, w,"r--");
+    plt::named_plot("Actual", x, y);
+    plt::named_plot("Target", x, w,"r--");
     plt::ylabel("value");
     plt::xlabel("times");
     plt::xlim((size_t)0, n);
     plt::title("Fuzzy Control Demo: Target and Actual");
+    plt::legend();
     if (show) {
         plt::show();
     } else {
-        plt::save("assets/fc_demo_target_and_actual.png");
+        plt::save("assets/fc_demo_target_and_actual" + filename_suffix + ".png");
     }
     plt::close();
 }
 
 
-void FuzzyLogic::plotControlErr(bool show) {
+void FuzzyLogic::plotControlErr(std::string filename_suffix, bool show) {
     size_t n = control_err_plot_.size();
     std::vector<double> x(n), y1(n), y2(n), w(n, 0);
 
@@ -320,7 +358,7 @@ void FuzzyLogic::plotControlErr(bool show) {
     if (show) {
         plt::show();
     } else {
-        plt::save("assets/fc_demo_err_and_derr.png");
+        plt::save("assets/fc_demo_err_and_derr" + filename_suffix + ".png");
     }
     plt::close();
 }

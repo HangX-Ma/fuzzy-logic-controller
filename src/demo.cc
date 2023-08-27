@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include "fuzzy/fuzzy_def.h"
 #include "fuzzy/fuzzy_logic.h"
 #include <iostream>
@@ -11,7 +12,6 @@ constexpr const size_t GAUSSIAN_PARAMS_NUM = 14;
 int main (int argc,char *argv[]) {
     FC_UNUSED(argc);
     FC_UNUSED(argv);
-
 
     // membership triangle params
     fc::scalar triangle_params[TRIANGLE_PARAMS_NUM] = {
@@ -73,19 +73,56 @@ int main (int argc,char *argv[]) {
     fuzzy.ec->plotMembershipFunctions();
     fuzzy.u->plotMembershipFunctions();
 
+    // DON'T CHANGE FACTOR RATIO OUT OF RANGE [0.5, 2.0]!
+    fuzzy.u->setFactor(0.5, true);
+
     fuzzy.getInfo();
 
-
+#define CONTROL_TEST_CONSTANT_TARGET    (0)
+#define CONTROL_TEST_SINE_TARGET        (1)
+#if CONTROL_TEST_CONSTANT_TARGET
     fc::Control_t control;
     control.target = 60.0;
     control.actual = 0.0;
 
-    const int times = 20;
+    const int times = 300;
     for (int i = 0; i < times; i++) {
+        if (i == 50) {
+            control.target = 100.0;
+        } else if (i == 100) {
+            control.target = 80.0;
+        } else if (i == 200) {
+            control.target = 40.0;
+        }
         control.actual += fuzzy.algo(control, true);
     }
-    fuzzy.plotControl();
-    fuzzy.plotControlErr();
+
+    fuzzy.plotControl("_constant");
+    fuzzy.plotControlErr("_constant");
+#elif CONTROL_TEST_SINE_TARGET
+    fc::Control_t control;
+    control.target = 0.0;
+    control.actual = 0.0;
+
+    const int times = 5 * 360;
+    for (int i = 0; i < times; i++) {
+        if (i <= 360) {
+            control.target = sin(i * M_PI / 360);
+        } else if (i <= 2 * 360) {
+            control.target = sin(i * M_PI / 180);
+        } else if (i <= 3 * 360) {
+            control.target = sin(i * M_PI / 90);
+        } else if (i <= 4 * 360) {
+            control.target = sin(i * M_PI / 30);
+        } else if (i <= 5 * 360) {
+            control.target = sin(i * M_PI / 720);
+        }
+        control.actual += fuzzy.algo(control, true);
+    }
+
+    fuzzy.plotControl("_sine");
+    fuzzy.plotControlErr("_sine");
+#endif
 
     return 0;
 }

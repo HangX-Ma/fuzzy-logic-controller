@@ -69,17 +69,28 @@ add_definitions(
 [INFO]=> discourse u:  [-30.000, 30.000]
 [INFO]=> error quantifying factor [Ke]:             0.0700
 [INFO]=> derivative error quantifying factor [Kec]: 0.1400
-[INFO]=> output scaling factor [Ku]:                4.2857
+[INFO]=> output scaling factor [Ku]:                8.5714
 ```
 
 <table>
 <tr>
-    <td><img src="assets/fc_demo_target_and_actual.png" alt="FC Demo: Target and Actual, HangX-Ma" width=500 /></td>
-    <td><img src="assets/fc_demo_err_and_derr.png" alt="FC Demo: Error and Derivative Error, HangX-Ma" width=500 /></td>
+    <td><img src="assets/fc_demo_target_and_actual_constant.png" alt="FC Demo - Constant: Target and Actual, HangX-Ma" width=500 /></td>
+    <td><img src="assets/fc_demo_err_and_derr_constant.png" alt="FC Demo - Constant: Error and Derivative Error, HangX-Ma" width=500 /></td>
 </tr>
 <tr>
-    <td align="center"><font size="2" color="#999"><u>FC Demo: Target and Actual, HangX-Ma</u></font></td>
-    <td align="center"><font size="2" color="#999"><u>FC Demo: Error and Derivative Error, HangX-Ma</u></font></td>
+    <td align="center"><font size="2" color="#999"><u>FC Demo - Constant: Target and Actual, HangX-Ma</u></font></td>
+    <td align="center"><font size="2" color="#999"><u>FC Demo - Constant: Error and Derivative Error, HangX-Ma</u></font></td>
+</tr>
+</table>
+
+<table>
+<tr>
+    <td><img src="assets/fc_demo_target_and_actual_sine.png" alt="FC Demo - Sine: Target and Actual, HangX-Ma" width=500 /></td>
+    <td><img src="assets/fc_demo_err_and_derr_sine.png" alt="FC Demo - Sine: Error and Derivative Error, HangX-Ma" width=500 /></td>
+</tr>
+<tr>
+    <td align="center"><font size="2" color="#999"><u>FC Demo - Sine: Target and Actual, HangX-Ma</u></font></td>
+    <td align="center"><font size="2" color="#999"><u>FC Demo - Sine: Error and Derivative Error, HangX-Ma</u></font></td>
 </tr>
 </table>
 

@@ -28,6 +28,11 @@ typedef struct Inference {
     int rule;
 } Inference_t;
 
+enum class FuzzyProcess {
+    FuzzyUninit,
+    FuzzyInit,
+};
+
 //? Note: e/ec factor=discourse_size/bound, u factor=bound/discourse_size
 class Fuzzification {
     public:
@@ -40,7 +45,13 @@ class Fuzzification {
                   const scalar input_params[],
                   const uint8_t params_num);
         void fuzzify(scalar input);
+
+        void setFactor(const scalar ratio, const bool reverse);
+        void setBound(const scalar bound);
+
         const std::string& getName(void);
+        scalar getFactor(void);
+        scalar getBound(void);
 
 #if FC_USE_MATPLOTLIB
         void plotMembershipFunctions(bool show = false);
@@ -49,10 +60,13 @@ class Fuzzification {
         std::unique_ptr<Membership> membership_;
         std::vector<PremisePair> premise_pairs_;
 
-        scalar factor_; // quantifying/scaling factor
-        scalar bound_;  // upper bound
     protected:
         std::string name_;
+        FuzzyProcess state_;
+
+    private:
+        scalar factor_; // quantifying/scaling factor
+        scalar bound_;  // upper bound
 };
 
 
@@ -78,8 +92,8 @@ class FuzzyLogic {
 
 #if FC_USE_MATPLOTLIB
         void plotFuzzyControlSurface(bool show = false);
-        void plotControl(bool show = false);
-        void plotControlErr(bool show = false);
+        void plotControl(std::string filename_suffix = "", bool show = false);
+        void plotControlErr(std::string filename_suffix = "", bool show = false);
 
         std::vector<Control_t> control_plot_;
         std::vector<Err_t> control_err_plot_;
