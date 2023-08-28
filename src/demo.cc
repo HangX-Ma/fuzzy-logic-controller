@@ -73,6 +73,8 @@ int main (int argc,char *argv[]) {
     fuzzy.ec->plotMembershipFunctions();
     fuzzy.u->plotMembershipFunctions();
 
+    fuzzy.p_ctrl_->setProportional(4.0);
+
     // DON'T CHANGE FACTOR RATIO OUT OF RANGE!
     fuzzy.u->setFactor(2.0, true);
 
@@ -94,7 +96,7 @@ int main (int argc,char *argv[]) {
         } else if (i == 200) {
             control.target = 40.0;
         }
-        control.actual += fuzzy.algo(control, true);
+        control.actual += fuzzy.algo(control, true, 1.6);
     }
 
     fuzzy.plotControl("_constant");
@@ -117,7 +119,7 @@ int main (int argc,char *argv[]) {
         } else if (i <= 5 * 360) {
             control.target = 25 * sin(i * M_PI / 720);
         }
-        control.actual += fuzzy.algo(control, true);
+        control.actual += fuzzy.algo(control, true, 1.6);
     }
 
     fuzzy.plotControl("_sine");

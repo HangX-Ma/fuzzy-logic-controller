@@ -13,6 +13,7 @@
 #include "utils/base.h"
 #include "utils/operation.h"
 #include "fuzzy/membership.h"
+#include "fuzzy/pid.h"
 #include "Eigen/Eigen"
 
 #include <unordered_map>
@@ -86,7 +87,7 @@ class FuzzyLogic {
         FuzzyLogic(int resolution = 200);
         ~FuzzyLogic();
 
-        scalar algo(Control_t input, bool show_control_info = false);
+        scalar algo(const Control_t input, bool use_p_ctrl = false, const scalar output_scale = 1.0);
         void setFuzzyRules(const Matrix &rule_table);
         void getInfo(void);
 
@@ -103,11 +104,13 @@ class FuzzyLogic {
         std::unique_ptr<Fuzzification> ec;
         std::unique_ptr<Fuzzification> u;
 
+        std::unique_ptr<PController> p_ctrl_;
     private:
         void inference(void);
         scalar defuzzify(void);
         CentroidPair centroid(size_t rule_id, scalar truncation_premise);
         void rangeCheck(scalar& input, Membership* ptr);
+        bool controllerSwitchCheck(void);
 
         int resolution_;
         Matrix rule_table_;

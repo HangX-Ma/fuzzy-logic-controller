@@ -60,12 +60,20 @@ namespace fc {
 #endif
 
 #ifdef FC_USE_INFO_MSG
-#define infomsg(fmt, ...) printf(ANSI_COLOR_YELLOW "[INFO]" fmt ANSI_COLOR_RESET, ##__VA_ARGS__)
-#define infomsgln(fmt, ...) printf(ANSI_COLOR_YELLOW "[INFO]" fmt ANSI_COLOR_RESET"\n", ##__VA_ARGS__)
+#define infomsg(fmt, ...) printf(ANSI_COLOR_GREEN "[INFO]" fmt ANSI_COLOR_RESET, ##__VA_ARGS__)
+#define infomsgln(fmt, ...) printf(ANSI_COLOR_GREEN "[INFO]" fmt ANSI_COLOR_RESET"\n", ##__VA_ARGS__)
 #else
 #define infomsg(fmt, ...)
 #define infomsgln(fmt, ...)
 #endif
+
+#ifdef  FC_USE_WARN_MSG
+#define warnmsg(fmt, ...) printf(ANSI_COLOR_YELLOW "[WARN]" fmt ANSI_COLOR_RESET, ##__VA_ARGS__)
+#define warnmsgln(fmt, ...) printf(ANSI_COLOR_YELLOW "[WARN]" fmt ANSI_COLOR_RESET"\n", ##__VA_ARGS__)
+#else
+#define warnmsg(fmt, ...)
+#define warnmsgln(fmt, ...)
+#endif  //FC_USE_WARN_MSG
 
 /* basic type definition */
 #ifdef FC_USE_FLOAT

@@ -49,7 +49,7 @@ void Fuzzification::fuzzify(scalar input) {
 
 void Fuzzification::setFactor(const scalar ratio, const bool reverse) {
     if (state_ != FuzzyProcess::FuzzyInit) {
-        dbgmsgln("[fuzzification] please init first");
+        warnmsgln("[fuzzification] please init first");
         return;
     }
 
@@ -62,12 +62,12 @@ void Fuzzification::setFactor(const scalar ratio, const bool reverse) {
 
 void Fuzzification::setBound(scalar bound) {
     if (state_ != FuzzyProcess::FuzzyInit) {
-        dbgmsgln("[fuzzification] please init first");
+        warnmsgln("[fuzzification] please init first");
         return;
     }
 
     if (bound < -eps) {
-        dbgmsgln("[fuzzification] 'bound' needs to be positive");
+        warnmsgln("[fuzzification] 'bound' needs to be positive");
         return;
     }
 
@@ -95,6 +95,8 @@ FuzzyLogic::FuzzyLogic(int resolution)
     e  = std::make_unique<Fuzzification>("e");
     ec = std::make_unique<Fuzzification>("ec");
     u  = std::make_unique<Fuzzification>("u");
+
+    p_ctrl_ = std::make_unique<PController>();
 }
 
 FuzzyLogic::~FuzzyLogic() {}
@@ -119,9 +121,20 @@ void FuzzyLogic::rangeCheck(scalar& input, Membership* ptr) {
     }
 }
 
+bool FuzzyLogic::controllerSwitchCheck(void) {
+    scalar ratio = 1 / 2.5;
+    if (control_.err > e->membership_->getMaximum() * ratio || control_.err < e->membership_->getMinimum() * ratio) {
+        return true;
+    } else if (control_.d_err > ec->membership_->getMaximum() * ratio || control_.d_err < ec->membership_->getMinimum() * ratio) {
+        return true;
+    }
+
+    return false;
+}
+
 static size_t iter = 0;
-scalar FuzzyLogic::algo(Control_t input, bool show_control_info) {
-    scalar output, err, d_err;
+scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar output_scale) {
+    scalar output, defuzzify_output, err, d_err;
 
     // TODO: input may out of max bound, acquiring limitation for scaling.
     // calculate the basic control params and normalize them to discourse range
@@ -132,27 +145,36 @@ scalar FuzzyLogic::algo(Control_t input, bool show_control_info) {
     control_.d_err    = ec->getFactor() * (fabs(d_err) > ec->getBound() ? sign(err) * ec->getBound() : d_err);
     control_.prev_err = fabs(err) > e->getBound() ? sign(err) * e->getBound() : err;
 
-    // ensure the factor will not make e or ec out of range
-    rangeCheck(control_.err, e->membership_.get());
-    rangeCheck(control_.d_err, ec->membership_.get());
+    if (use_p_ctrl && controllerSwitchCheck()) {
+        output = p_ctrl_->algo(control_.err);
+    } else {
+        // ensure the factor will not make e or ec out of range
+        rangeCheck(control_.err, e->membership_.get());
+        rangeCheck(control_.d_err, ec->membership_.get());
 
-    e->fuzzify(control_.err);
-    ec->fuzzify(control_.d_err);
+        e->fuzzify(control_.err);
+        ec->fuzzify(control_.d_err);
 
-    inference();
+        inference();
 
-    output = defuzzify() * u->getFactor();
+        defuzzify_output = defuzzify();
+
+        if (fabs(output_scale) > 1.0 && fabs(defuzzify_output) > 1.0) {
+            output = sign(defuzzify_output) * pow(fabs(defuzzify_output), output_scale) * u->getFactor();
+        } else {
+            output = defuzzify_output * u->getFactor();
+        }
+    }
 
     if (output >= u->getBound()) output = u->getBound();
     if (output <= -u->getBound()) output = -u->getBound();
 
-    if (show_control_info) {
-        if (iter == 0) {
-            dbgmsgln("Times    Target    Actual    Error    DError    PError");
-        }
-        dbgmsgln("%04llu     %06.2f    %06.2f    %06.3f   %06.3f    %06.3f",
-            iter++, input.target, input.actual, control_.err, control_.d_err, control_.prev_err);
+    // control info
+    if (iter == 0) {
+        dbgmsgln("Times    Target    Actual    Error    DError    PError");
     }
+    dbgmsgln("%04llu     %06.2f    %06.2f    %06.3f   %06.3f    %06.3f",
+        iter++, input.target, input.actual, control_.err, control_.d_err, control_.prev_err);
 
 #if FC_USE_MATPLOTLIB
     control_plot_.emplace_back(Control_t{input.target, input.actual});

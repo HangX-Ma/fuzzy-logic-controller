@@ -43,6 +43,7 @@ add_definitions(
     "-DFC_USE_MATPLOTLIB"
     # "-DFC_USE_DEBUG_MSG"
     "-DFC_USE_INFO_MSG"
+    "-DFC_USE_WARN_MSG"
 )
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)

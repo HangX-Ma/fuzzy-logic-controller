@@ -80,7 +80,7 @@ void Membership::setMembershipParam(const membershipType type,
     std::vector<scalar> param_set;
 
     if (params_num % size != 0) {
-        printf("[membership error] membership type: %d, param number: %d\n", size, params_num);
+        warnmsgln("[membership error] membership type: %d, param number: %d", size, params_num);
         throw std::length_error("[membership error] parameters number mismatches");
     }
 

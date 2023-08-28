@@ -2,6 +2,15 @@
 
 Realize the basic function of fuzzy logic controller. User can select _Triangle_, _Trapezoid_, _Gaussian_ membership functions to do **fuzzification**. The **inference** process will select the highest weight rule, if exist some rules that points to the same output discourse. _Centroid (COG)_ method is used to **defuzzification**.
 
+You can use _**P-FC**_ controller that combines _proportional controller_ with _fuzzy controller_. This will enhance the system response time and accuracy when input _error_ or _error rate_ high.
+
+<div align="center">
+    <img src="assets/fzc_design.svg" alt="Fuzzy logic controller design, HangX-Ma" width=600 />
+    <br>
+    <font size="2" color="#999"><u>Fuzzy logic controller design, HangX-Ma</u></font>
+    <br></br>
+</div>
+
 ## Environment
 
 - Python3.11, matplotlib-3.7.1
