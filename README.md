@@ -64,12 +64,12 @@ add_definitions(
 
 ```bash
 [INFO]Fuzzy logic controller info:
-[INFO]=> discourse e:  [-100.000, 100.000]
-[INFO]=> discourse ec: [-50.000, 50.000]
-[INFO]=> discourse u:  [-30.000, 30.000]
-[INFO]=> error quantifying factor [Ke]:             0.0700
-[INFO]=> derivative error quantifying factor [Kec]: 0.1400
-[INFO]=> output scaling factor [Ku]:                8.5714
+[INFO]=> discourse e:  [-100.000, 100.000], min-max[-3.00, 3.00]
+[INFO]=> discourse ec: [-50.000, 50.000], min-max[-3.00, 3.00]
+[INFO]=> discourse u:  [-50.000, 50.000], min-max[-3.00, 3.00]
+[INFO]=> error quantifying factor [Ke]:             0.0300
+[INFO]=> derivative error quantifying factor [Kec]: 0.0600
+[INFO]=> output scaling factor [Ku]:                8.3333
 ```
 
 <table>

@@ -107,6 +107,7 @@ class FuzzyLogic {
         void inference(void);
         scalar defuzzify(void);
         CentroidPair centroid(size_t rule_id, scalar truncation_premise);
+        void rangeCheck(scalar& input, Membership* ptr);
 
         int resolution_;
         Matrix rule_table_;

@@ -24,7 +24,7 @@ void Fuzzification::init(const scalar bound,
 {
     membership_->setMembershipParam(type, input_params, params_num);
     bound_ = bound;
-    factor_ = static_cast<scalar>(membership_->getDiscourseSize()) / bound_;
+    factor_ = static_cast<scalar>(membership_->getDiscourseSize() / 2) / bound_;
     if (reverse) {
         factor_ = 1 / factor_;
     }
@@ -39,9 +39,10 @@ void Fuzzification::fuzzify(scalar input) {
 
     for (size_t idx = 0; idx < membership_->getDiscourseSize(); idx++) {
         premise = membership_->calculate(input, membership_->getParamSet(idx));
+        // dbgmsgln("[fuzzify] %s - premise: %.3f, idx: %llu, input: %.3f", getName().c_str(), premise.value(), idx, input);
         if (premise != std::nullopt && fabs(premise.value()) >= fc::eps) {
             premise_pairs_.emplace_back(std::make_pair(premise.value(), idx));
-            dbgmsgln("[fuzzify] %s - premise: %.3f, discourse ID: %llu", getName().c_str(), premise.value(), idx);
+            dbgmsgln("[fuzzify] %s - input: %.3f premise: %.3f, discourse ID: %llu", getName().c_str(), input, premise.value(), idx);
         }
     }
 }
@@ -52,7 +53,8 @@ void Fuzzification::setFactor(const scalar ratio, const bool reverse) {
         return;
     }
 
-    factor_ =  ratio * static_cast<scalar>(membership_->getDiscourseSize()) / bound_;
+    scalar input_ratio = ratio > fc::eps ? ratio : 0.1;
+    factor_ = input_ratio * static_cast<scalar>(membership_->getDiscourseSize() / 2) / bound_;
     if (reverse) {
         factor_ = 1 / factor_;
     }
@@ -61,6 +63,11 @@ void Fuzzification::setFactor(const scalar ratio, const bool reverse) {
 void Fuzzification::setBound(scalar bound) {
     if (state_ != FuzzyProcess::FuzzyInit) {
         dbgmsgln("[fuzzification] please init first");
+        return;
+    }
+
+    if (bound < -eps) {
+        dbgmsgln("[fuzzification] 'bound' needs to be positive");
         return;
     }
 
@@ -92,14 +99,42 @@ FuzzyLogic::FuzzyLogic(int resolution)
 
 FuzzyLogic::~FuzzyLogic() {}
 
+scalar sign(scalar x) {
+    if (x >= eps) {
+        return 1.0;
+    } else if (x <= -eps) {
+        return -1.0;
+    } else {
+        return 0.0;
+    }
+}
+
+void FuzzyLogic::rangeCheck(scalar& input, Membership* ptr) {
+    if (input > ptr->getMaximum()) {
+        input = ptr->getMaximum();
+    }
+
+    if (input < ptr->getMinimum()) {
+        input = ptr->getMinimum();
+    }
+}
+
 static size_t iter = 0;
 scalar FuzzyLogic::algo(Control_t input, bool show_control_info) {
-    scalar output;
+    scalar output, err, d_err;
 
+    // TODO: input may out of max bound, acquiring limitation for scaling.
     // calculate the basic control params and normalize them to discourse range
-    control_.err   = e->getFactor() * (input.target - input.actual);
-    control_.d_err = ec->getFactor() * (control_.err - control_.prev_err);
-    control_.prev_err = control_.err;
+    err   = input.target - input.actual;
+    d_err = err - control_.prev_err;
+
+    control_.err      = e->getFactor() * (fabs(err) > e->getBound() ? sign(err) * e->getBound() : err);
+    control_.d_err    = ec->getFactor() * (fabs(d_err) > ec->getBound() ? sign(err) * ec->getBound() : d_err);
+    control_.prev_err = fabs(err) > e->getBound() ? sign(err) * e->getBound() : err;
+
+    // ensure the factor will not make e or ec out of range
+    rangeCheck(control_.err, e->membership_.get());
+    rangeCheck(control_.d_err, ec->membership_.get());
 
     e->fuzzify(control_.err);
     ec->fuzzify(control_.d_err);
@@ -203,9 +238,12 @@ void FuzzyLogic::setFuzzyRules(const Matrix &rule_table) {
 void FuzzyLogic::getInfo(void) {
     std::cout << std::endl;
     infomsgln("Fuzzy logic controller info:");
-    infomsgln("=> discourse e:  [%.3f, %.3f]", -e->getBound(), e->getBound());
-    infomsgln("=> discourse ec: [%.3f, %.3f]", -ec->getBound(), ec->getBound());
-    infomsgln("=> discourse u:  [%.3f, %.3f]", -u->getBound(), u->getBound());
+    infomsgln("=> discourse e:  [%.3f, %.3f], min-max[%.2f, %.2f]",
+        -e->getBound(), e->getBound(), e->membership_->getMinimum(), e->membership_->getMaximum());
+    infomsgln("=> discourse ec: [%.3f, %.3f], min-max[%.2f, %.2f]",
+        -ec->getBound(), ec->getBound(), e->membership_->getMinimum(), e->membership_->getMaximum());
+    infomsgln("=> discourse u:  [%.3f, %.3f], min-max[%.2f, %.2f]",
+        -u->getBound(), u->getBound(), e->membership_->getMinimum(), e->membership_->getMaximum());
     infomsgln("=> error quantifying factor [Ke]:             %.4f", e->getFactor());
     infomsgln("=> derivative error quantifying factor [Kec]: %.4f", ec->getFactor());
     infomsgln("=> output scaling factor [Ku]:                %.4f", u->getFactor());

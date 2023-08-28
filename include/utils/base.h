@@ -87,7 +87,7 @@ namespace fc {
 /* represent the Not-A-Number and infinity value */
 const scalar nan = std::numeric_limits<scalar>::quiet_NaN();
 const scalar inf = std::numeric_limits<scalar>::infinity();
-const scalar eps = 1e-6;
+const scalar eps = 1e-7;
 
 }
 

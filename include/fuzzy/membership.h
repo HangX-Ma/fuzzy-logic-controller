@@ -41,6 +41,8 @@ class Membership {
         const Range getRange(size_t discourse_id);
         membershipType getType(void);
         const std::string& getName(void);
+        scalar getMinimum(void);
+        scalar getMaximum(void);
     private:
         /**
          * @brief Compute membership function value at \f$x\f$
@@ -119,6 +121,8 @@ class Membership {
         size_t discourse_size_;
         std::vector<std::vector<scalar>> params_;
         std::vector<Range> params_range_;
+        scalar minimum_;
+        scalar maximum_;
 };
 }
 

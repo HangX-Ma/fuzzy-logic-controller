@@ -33,7 +33,7 @@ std::optional<scalar> Membership::calculate(const scalar input, const std::vecto
             throw std::invalid_argument("[membership error] set membership type first");
     }
 
-    if (ret != fc::nan) {
+    if (ret != fc::nan && ret != fc::inf) {
         return ret;
     }
 
@@ -61,6 +61,14 @@ Range Membership::calculateRange(const membershipType type, const std::vector<sc
             throw std::invalid_argument("[membership error] set membership type first");
     }
 
+    if (range.first < minimum_) {
+        minimum_ = range.first;
+    }
+
+    if (range.second > maximum_) {
+        maximum_ = range.second;
+    }
+
     return range;
 }
 
@@ -78,6 +86,8 @@ void Membership::setMembershipParam(const membershipType type,
 
     type_ = type;
     discourse_size_ = params_num / size;
+    minimum_ = std::numeric_limits<scalar>::max();
+    maximum_ = std::numeric_limits<scalar>::min();
 
     for (uint8_t idx = 1; idx <= params_num; idx++) {
         param_set.emplace_back(input_params[idx - 1]);
@@ -114,16 +124,20 @@ scalar Membership::triangle(scalar x, scalar vertexA, scalar vertexB, scalar ver
     }
 
     if (Operation::isLessThan(x, vertexB)) {
-        if (vertexA == -fc::inf) {
+        if (fabs(vertexA) == fc::inf) {
             return height_ * 1.0;
         }
         return height_ * (x - vertexA) / (vertexB - vertexA);
     }
-    if (vertexC == fc::inf) {
-        return height_ * 1.0;
+
+    if (Operation::isGreaterThan(x, vertexB)) {
+        if (fabs(vertexC) == fc::inf) {
+            return height_ * 1.0;
+        }
+        return height_ * (vertexC - x) / (vertexC - vertexB);
     }
 
-    return height_ * (vertexC - x) / (vertexC - vertexB);
+    return fc::nan;
 }
 
 
@@ -196,4 +210,12 @@ membershipType Membership::getType(void) {
 
 const std::string& Membership::getName(void) {
     return name_;
+}
+
+scalar Membership::getMinimum(void) {
+    return minimum_;
+}
+
+scalar Membership::getMaximum(void) {
+    return maximum_;
 }

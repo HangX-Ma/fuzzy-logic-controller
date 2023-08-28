@@ -51,7 +51,7 @@ int main (int argc,char *argv[]) {
     // fuzzy.ec->init(200, false, fc::membershipType::Trapezoid, trapezoid_params, TRAPEZOID_PARAMS_NUM);
     // fuzzy.u->init(30, true, fc::membershipType::Gaussian, gaussian_params, GAUSSIAN_PARAMS_NUM);
     fuzzy.ec->init(50, false, fc::membershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
-    fuzzy.u->init(30, true, fc::membershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
+    fuzzy.u->init(50, true, fc::membershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
 
     size_t rows = fuzzy.e->membership_->getDiscourseSize();
     size_t cols = fuzzy.ec->membership_->getDiscourseSize();
@@ -73,8 +73,8 @@ int main (int argc,char *argv[]) {
     fuzzy.ec->plotMembershipFunctions();
     fuzzy.u->plotMembershipFunctions();
 
-    // DON'T CHANGE FACTOR RATIO OUT OF RANGE [0.5, 2.0]!
-    fuzzy.u->setFactor(0.5, true);
+    // DON'T CHANGE FACTOR RATIO OUT OF RANGE!
+    fuzzy.u->setFactor(2.0, true);
 
     fuzzy.getInfo();
 
@@ -90,7 +90,7 @@ int main (int argc,char *argv[]) {
         if (i == 50) {
             control.target = 100.0;
         } else if (i == 100) {
-            control.target = 80.0;
+            control.target = -50.0;
         } else if (i == 200) {
             control.target = 40.0;
         }
@@ -107,15 +107,15 @@ int main (int argc,char *argv[]) {
     const int times = 5 * 360;
     for (int i = 0; i < times; i++) {
         if (i <= 360) {
-            control.target = sin(i * M_PI / 360);
+            control.target = 2 * sin(i * M_PI / 360);
         } else if (i <= 2 * 360) {
-            control.target = sin(i * M_PI / 180);
+            control.target = 5 * sin(i * M_PI / 180);
         } else if (i <= 3 * 360) {
-            control.target = sin(i * M_PI / 90);
+            control.target = 10 * sin(i * M_PI / 90);
         } else if (i <= 4 * 360) {
-            control.target = sin(i * M_PI / 30);
+            control.target = 15 * sin(i * M_PI / 30);
         } else if (i <= 5 * 360) {
-            control.target = sin(i * M_PI / 720);
+            control.target = 25 * sin(i * M_PI / 720);
         }
         control.actual += fuzzy.algo(control, true);
     }
