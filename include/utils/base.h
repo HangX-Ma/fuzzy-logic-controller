@@ -60,8 +60,8 @@ namespace fc {
 #endif
 
 #ifdef FC_USE_INFO_MSG
-#define infomsg(fmt, ...) printf(ANSI_COLOR_GREEN "[INFO]" fmt ANSI_COLOR_RESET, ##__VA_ARGS__)
-#define infomsgln(fmt, ...) printf(ANSI_COLOR_GREEN "[INFO]" fmt ANSI_COLOR_RESET"\n", ##__VA_ARGS__)
+#define infomsg(fmt, ...) printf(ANSI_COLOR_CYAN "[INFO]" fmt ANSI_COLOR_RESET, ##__VA_ARGS__)
+#define infomsgln(fmt, ...) printf(ANSI_COLOR_CYAN "[INFO]" fmt ANSI_COLOR_RESET"\n", ##__VA_ARGS__)
 #else
 #define infomsg(fmt, ...)
 #define infomsgln(fmt, ...)

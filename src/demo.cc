@@ -51,7 +51,7 @@ int main (int argc,char *argv[]) {
     // fuzzy.ec->init(200, false, fc::membershipType::Trapezoid, trapezoid_params, TRAPEZOID_PARAMS_NUM);
     // fuzzy.u->init(30, true, fc::membershipType::Gaussian, gaussian_params, GAUSSIAN_PARAMS_NUM);
     fuzzy.ec->init(50, false, fc::membershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
-    fuzzy.u->init(50, true, fc::membershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
+    fuzzy.u->init(60, true, fc::membershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
 
     size_t rows = fuzzy.e->membership_->getDiscourseSize();
     size_t cols = fuzzy.ec->membership_->getDiscourseSize();
@@ -73,15 +73,16 @@ int main (int argc,char *argv[]) {
     fuzzy.ec->plotMembershipFunctions();
     fuzzy.u->plotMembershipFunctions();
 
-    fuzzy.p_ctrl_->setProportional(4.0);
+    fuzzy.p_ctrl_->setProportional(4.2);
 
     // DON'T CHANGE FACTOR RATIO OUT OF RANGE!
-    fuzzy.u->setFactor(2.0, true);
+    fuzzy.u->setFactor(2.5, true);
 
     fuzzy.getInfo();
 
 #define CONTROL_TEST_CONSTANT_TARGET    (0)
 #define CONTROL_TEST_SINE_TARGET        (1)
+#define CONTROL_TEST_USE_P_CONTROLLER   (1)
 #if CONTROL_TEST_CONSTANT_TARGET
     fc::Control_t control;
     control.target = 60.0;
@@ -96,11 +97,20 @@ int main (int argc,char *argv[]) {
         } else if (i == 200) {
             control.target = 40.0;
         }
-        control.actual += fuzzy.algo(control, true, 1.6);
+        if (CONTROL_TEST_USE_P_CONTROLLER) {
+            control.actual += fuzzy.algo(control, true, /*exp^*/0.2);
+        } else {
+            control.actual += fuzzy.algo(control, false, /*exp^*/0.2);
+        }
     }
 
-    fuzzy.plotControl("_constant");
-    fuzzy.plotControlErr("_constant");
+    if (CONTROL_TEST_USE_P_CONTROLLER) {
+        fuzzy.plotControl("p", "_constant");
+        fuzzy.plotControlErr("p", "_constant");
+    } else {
+        fuzzy.plotControl("", "_constant");
+        fuzzy.plotControlErr("", "_constant");
+    }
 #elif CONTROL_TEST_SINE_TARGET
     fc::Control_t control;
     control.target = 0.0;
@@ -119,11 +129,20 @@ int main (int argc,char *argv[]) {
         } else if (i <= 5 * 360) {
             control.target = 25 * sin(i * M_PI / 720);
         }
-        control.actual += fuzzy.algo(control, true, 1.6);
+        if (CONTROL_TEST_USE_P_CONTROLLER) {
+            control.actual += fuzzy.algo(control, true, /*exp^*/0.2);
+        } else {
+            control.actual += fuzzy.algo(control, false, /*exp^*/0.2);
+        }
     }
 
-    fuzzy.plotControl("_sine");
-    fuzzy.plotControlErr("_sine");
+    if (CONTROL_TEST_USE_P_CONTROLLER) {
+        fuzzy.plotControl("p", "_sine");
+        fuzzy.plotControlErr("p", "_sine");
+    } else {
+        fuzzy.plotControl("", "_sine");
+        fuzzy.plotControlErr("", "_sine");
+    }
 #endif
 
     return 0;

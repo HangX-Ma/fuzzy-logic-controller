@@ -87,14 +87,14 @@ class FuzzyLogic {
         FuzzyLogic(int resolution = 200);
         ~FuzzyLogic();
 
-        scalar algo(const Control_t input, bool use_p_ctrl = false, const scalar output_scale = 1.0);
+        scalar algo(const Control_t input, bool use_p_ctrl = false, const scalar output_exp_scale = 0.0);
         void setFuzzyRules(const Matrix &rule_table);
         void getInfo(void);
 
 #if FC_USE_MATPLOTLIB
         void plotFuzzyControlSurface(bool show = false);
-        void plotControl(std::string filename_suffix = "", bool show = false);
-        void plotControlErr(std::string filename_suffix = "", bool show = false);
+        void plotControl(std::string filename_prefix = "", std::string filename_suffix = "", bool show = false);
+        void plotControlErr(std::string filename_prefix = "", std::string filename_suffix = "", bool show = false);
 
         std::vector<Control_t> control_plot_;
         std::vector<Err_t> control_err_plot_;

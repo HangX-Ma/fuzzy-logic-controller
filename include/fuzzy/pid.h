@@ -22,6 +22,7 @@ class PController {
         scalar algo(const scalar err);
 
         void setProportional(const scalar Kp);
+        scalar getProportional(void);
     private:
         scalar Kp_;
 };

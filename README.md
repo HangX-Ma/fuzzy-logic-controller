@@ -76,11 +76,14 @@ add_definitions(
 [INFO]Fuzzy logic controller info:
 [INFO]=> discourse e:  [-100.000, 100.000], min-max[-3.00, 3.00]
 [INFO]=> discourse ec: [-50.000, 50.000], min-max[-3.00, 3.00]
-[INFO]=> discourse u:  [-50.000, 50.000], min-max[-3.00, 3.00]
+[INFO]=> discourse u:  [-60.000, 60.000], min-max[-3.00, 3.00]
 [INFO]=> error quantifying factor [Ke]:             0.0300
 [INFO]=> derivative error quantifying factor [Kec]: 0.0600
-[INFO]=> output scaling factor [Ku]:                8.3333
+[INFO]=> output scaling factor [Ku]:                8.0000
+[INFO]=> proportional controller [Kp]:              4.2000
 ```
+
+### Fuzzy Controller
 
 <table>
 <tr>
@@ -101,6 +104,30 @@ add_definitions(
 <tr>
     <td align="center"><font size="2" color="#999"><u>FC Demo - Sine: Target and Actual, HangX-Ma</u></font></td>
     <td align="center"><font size="2" color="#999"><u>FC Demo - Sine: Error and Derivative Error, HangX-Ma</u></font></td>
+</tr>
+</table>
+
+### Proportional + Fuzzy Controller
+
+<table>
+<tr>
+    <td><img src="assets/pfc_demo_target_and_actual_constant.png" alt="P-FC Demo - Constant: Target and Actual, HangX-Ma" width=500 /></td>
+    <td><img src="assets/pfc_demo_err_and_derr_constant.png" alt="P-FC Demo - Constant: Error and Derivative Error, HangX-Ma" width=500 /></td>
+</tr>
+<tr>
+    <td align="center"><font size="2" color="#999"><u>P-FC Demo - Constant: Target and Actual, HangX-Ma</u></font></td>
+    <td align="center"><font size="2" color="#999"><u>P-FC Demo - Constant: Error and Derivative Error, HangX-Ma</u></font></td>
+</tr>
+</table>
+
+<table>
+<tr>
+    <td><img src="assets/pfc_demo_target_and_actual_sine.png" alt="P-FC Demo - Sine: Target and Actual, HangX-Ma" width=500 /></td>
+    <td><img src="assets/pfc_demo_err_and_derr_sine.png" alt="P-FC Demo - Sine: Error and Derivative Error, HangX-Ma" width=500 /></td>
+</tr>
+<tr>
+    <td align="center"><font size="2" color="#999"><u>P-FC Demo - Sine: Target and Actual, HangX-Ma</u></font></td>
+    <td align="center"><font size="2" color="#999"><u>P-FC Demo - Sine: Error and Derivative Error, HangX-Ma</u></font></td>
 </tr>
 </table>
 

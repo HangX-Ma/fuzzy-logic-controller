@@ -122,7 +122,7 @@ void FuzzyLogic::rangeCheck(scalar& input, Membership* ptr) {
 }
 
 bool FuzzyLogic::controllerSwitchCheck(void) {
-    scalar ratio = 1 / 2.5;
+    scalar ratio = 1.0 / 2.0;
     if (control_.err > e->membership_->getMaximum() * ratio || control_.err < e->membership_->getMinimum() * ratio) {
         return true;
     } else if (control_.d_err > ec->membership_->getMaximum() * ratio || control_.d_err < ec->membership_->getMinimum() * ratio) {
@@ -133,7 +133,7 @@ bool FuzzyLogic::controllerSwitchCheck(void) {
 }
 
 static size_t iter = 0;
-scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar output_scale) {
+scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar output_exp_scale) {
     scalar output, defuzzify_output, err, d_err;
 
     // TODO: input may out of max bound, acquiring limitation for scaling.
@@ -146,7 +146,7 @@ scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar out
     control_.prev_err = fabs(err) > e->getBound() ? sign(err) * e->getBound() : err;
 
     if (use_p_ctrl && controllerSwitchCheck()) {
-        output = p_ctrl_->algo(control_.err);
+        output = p_ctrl_->algo(control_.err) * u->getFactor();
     } else {
         // ensure the factor will not make e or ec out of range
         rangeCheck(control_.err, e->membership_.get());
@@ -159,8 +159,9 @@ scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar out
 
         defuzzify_output = defuzzify();
 
-        if (fabs(output_scale) > 1.0 && fabs(defuzzify_output) > 1.0) {
-            output = sign(defuzzify_output) * pow(fabs(defuzzify_output), output_scale) * u->getFactor();
+        // make output bigger when error is big: (sign) (fabs(output))^(exp(scale)) * Ku
+        if ((fabs(output_exp_scale) > fc::eps && fabs(output_exp_scale) < 1.0) && fabs(defuzzify_output) > 0.5) {
+            output = sign(defuzzify_output) * pow(fabs(defuzzify_output), exp(output_exp_scale)) * u->getFactor();
         } else {
             output = defuzzify_output * u->getFactor();
         }
@@ -269,6 +270,7 @@ void FuzzyLogic::getInfo(void) {
     infomsgln("=> error quantifying factor [Ke]:             %.4f", e->getFactor());
     infomsgln("=> derivative error quantifying factor [Kec]: %.4f", ec->getFactor());
     infomsgln("=> output scaling factor [Ku]:                %.4f", u->getFactor());
+    infomsgln("=> proportional controller [Kp]:              %.4f", p_ctrl_->getProportional());
     std::cout << std::endl;
 }
 
@@ -362,7 +364,7 @@ void FuzzyLogic::plotFuzzyControlSurface(bool show) {
     plt::close();
 }
 
-void FuzzyLogic::plotControl(std::string filename_suffix, bool show) {
+void FuzzyLogic::plotControl(std::string filename_prefix, std::string filename_suffix, bool show) {
     size_t n = control_plot_.size();
     std::vector<double> x(n), y(n), w(n);
 
@@ -386,13 +388,13 @@ void FuzzyLogic::plotControl(std::string filename_suffix, bool show) {
     if (show) {
         plt::show();
     } else {
-        plt::save("assets/fc_demo_target_and_actual" + filename_suffix + ".png");
+        plt::save("assets/" + filename_prefix + "fc_demo_target_and_actual" + filename_suffix + ".png");
     }
     plt::close();
 }
 
 
-void FuzzyLogic::plotControlErr(std::string filename_suffix, bool show) {
+void FuzzyLogic::plotControlErr(std::string filename_prefix, std::string filename_suffix, bool show) {
     size_t n = control_err_plot_.size();
     std::vector<double> x(n), y1(n), y2(n), w(n, 0);
 
@@ -418,7 +420,7 @@ void FuzzyLogic::plotControlErr(std::string filename_suffix, bool show) {
     if (show) {
         plt::show();
     } else {
-        plt::save("assets/fc_demo_err_and_derr" + filename_suffix + ".png");
+        plt::save("assets/" + filename_prefix + "fc_demo_err_and_derr" + filename_suffix + ".png");
     }
     plt::close();
 }

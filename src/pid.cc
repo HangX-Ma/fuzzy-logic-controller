@@ -17,6 +17,10 @@ void PController::setProportional(const scalar Kp) {
     Kp_ = Kp;
 }
 
+scalar PController::getProportional(void) {
+    return Kp_;
+}
+
 PIDController::PIDController()
     : prev_err_(0),
       pid_(PID_t{0, 0, 0}),
