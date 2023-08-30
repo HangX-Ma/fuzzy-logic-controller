@@ -308,22 +308,22 @@ void Fuzzification::plotMembershipFunctions(bool show) {
         plt::show();
     } else {
         switch (membership_->getType()) {
-            case membershipType::Triangle:
-                plt::title("Membership Functions: Triangle");
-                plt::save("assets/" + getName() + "_membership_triangle.png");
-                break;
-            case membershipType::Trapezoid:
-                plt::title("Membership Functions: Trapezoid");
-                plt::save("assets/" + getName() + "_membership_trapezoid.png");
-                break;
-            case membershipType::Gaussian:
-                plt::title("Membership Functions: Gaussian");
-                plt::save("assets/" + getName() + "_membership_gaussian.png");
-                break;
-            case membershipType::None:
-                /* fall through */
-            default:
-                throw std::invalid_argument("[membership error] set membership type first");
+        case membershipType::Triangle:
+            plt::title("Membership Functions: Triangle");
+            plt::save("assets/" + getName() + "_membership_triangle.png");
+            break;
+        case membershipType::Trapezoid:
+            plt::title("Membership Functions: Trapezoid");
+            plt::save("assets/" + getName() + "_membership_trapezoid.png");
+            break;
+        case membershipType::Gaussian:
+            plt::title("Membership Functions: Gaussian");
+            plt::save("assets/" + getName() + "_membership_gaussian.png");
+            break;
+        case membershipType::None:
+            /* fall through */
+        default:
+            throw std::invalid_argument("[membership error] set membership type first");
         }
     }
     plt::close();

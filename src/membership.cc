@@ -18,19 +18,19 @@ std::optional<scalar> Membership::calculate(const scalar input, const std::vecto
     scalar ret;
 
     switch (type_) {
-        case membershipType::Triangle:
-            ret = triangle(input, param_set.at(0), param_set.at(1), param_set.at(2));
-            break;
-        case membershipType::Trapezoid:
-            ret = trapezoid(input, param_set.at(0), param_set.at(1), param_set.at(2), param_set.at(3));
-            break;
-        case membershipType::Gaussian:
-            ret = gaussian(input, param_set.at(0), param_set.at(1));
-            break;
-        case membershipType::None:
-            /* fall through */
-        default:
-            throw std::invalid_argument("[membership error] set membership type first");
+    case membershipType::Triangle:
+        ret = triangle(input, param_set.at(0), param_set.at(1), param_set.at(2));
+        break;
+    case membershipType::Trapezoid:
+        ret = trapezoid(input, param_set.at(0), param_set.at(1), param_set.at(2), param_set.at(3));
+        break;
+    case membershipType::Gaussian:
+        ret = gaussian(input, param_set.at(0), param_set.at(1));
+        break;
+    case membershipType::None:
+        /* fall through */
+    default:
+        throw std::invalid_argument("[membership error] set membership type first");
     }
 
     if (ret != fc::nan && ret != fc::inf) {
@@ -44,21 +44,21 @@ Range Membership::calculateRange(const membershipType type, const std::vector<sc
     Range range;
     scalar mean, derivation;
     switch (type) {
-        case membershipType::Triangle:
-            range = Range{param_set.at(0), param_set.at(2)};
-            break;
-        case membershipType::Trapezoid:
-            range = Range{param_set.at(0), param_set.at(3)};
-            break;
-        case membershipType::Gaussian:
-            mean = param_set.at(0);
-            derivation = param_set.at(1);
-            range = Range{-3.0 * derivation + mean, 3.0 * derivation + mean};
-            break;
-        case membershipType::None:
-            /* fall through */
-        default:
-            throw std::invalid_argument("[membership error] set membership type first");
+    case membershipType::Triangle:
+        range = Range{param_set.at(0), param_set.at(2)};
+        break;
+    case membershipType::Trapezoid:
+        range = Range{param_set.at(0), param_set.at(3)};
+        break;
+    case membershipType::Gaussian:
+        mean = param_set.at(0);
+        derivation = param_set.at(1);
+        range = Range{-3.0 * derivation + mean, 3.0 * derivation + mean};
+        break;
+    case membershipType::None:
+        /* fall through */
+    default:
+        throw std::invalid_argument("[membership error] set membership type first");
     }
 
     if (range.first < minimum_) {
