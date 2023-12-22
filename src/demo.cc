@@ -77,7 +77,7 @@ int main (int argc,char *argv[]) {
 
     // DON'T CHANGE FACTOR RATIO OUT OF RANGE!
     fuzzy.u->setFactor(2.5, true);
-
+    fuzzy.setSwitchRatio(0.5);
     fuzzy.getInfo();
 
 #define CONTROL_TEST_CONSTANT_TARGET    (0)

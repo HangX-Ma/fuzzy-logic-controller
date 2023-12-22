@@ -6,8 +6,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set (CMAKE_C_COMPILER "E:/mingw64/bin/gcc.exe")
-set (CMAKE_CXX_COMPILER "E:/mingw64/bin/g++.exe")
+MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")
+
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(CMAKE_C_COMPILER "E:/mingw64/bin/gcc.exe")
+    set(CMAKE_CXX_COMPILER "E:/mingw64/bin/g++.exe")
+endif()
 
 # generate a compile commands file as complete database for vim-YouCompleteMe or some other similar tools
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -34,6 +38,7 @@ endif()
 add_compile_options(
     -Wall # print warning info
     -Wextra # print extra warning info
+
     # -Wconversion # data conversion truncation warning
     # -Wsign-conversion # sign <-> unsigned conversion warning
 )
@@ -41,6 +46,7 @@ add_compile_options(
 add_definitions(
     "-DFC_USE_DOUBLE"
     "-DFC_USE_MATPLOTLIB"
+
     # "-DFC_USE_DEBUG_MSG"
     "-DFC_USE_INFO_MSG"
     "-DFC_USE_WARN_MSG"
@@ -59,27 +65,28 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/library/fmt-10.1.0 EXCLUDE_FROM_ALL)
 # Library target
 add_library(matplotlib_cpp INTERFACE)
 target_include_directories(matplotlib_cpp
-  INTERFACE
+    INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/examples>
     $<INSTALL_INTERFACE:include>
 )
 target_compile_features(matplotlib_cpp INTERFACE
-  cxx_std_17
+    cxx_std_17
 )
 
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 target_link_libraries(matplotlib_cpp INTERFACE
-  Python3::Python
-  Python3::Module
+    Python3::Python
+    Python3::Module
 )
 
 find_package(Python3 COMPONENTS NumPy)
+
 if(Python3_NumPy_FOUND)
-  target_link_libraries(matplotlib_cpp INTERFACE
-    Python3::NumPy
-  )
+    target_link_libraries(matplotlib_cpp INTERFACE
+        Python3::NumPy
+    )
 else()
-  target_compile_definitions(matplotlib_cpp INTERFACE WITHOUT_NUMPY)
+    target_compile_definitions(matplotlib_cpp INTERFACE WITHOUT_NUMPY)
 endif()
 
 # project target
@@ -87,13 +94,14 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} matplotlib_cpp fmt-header-only)
 target_include_directories(${PROJECT_NAME}
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/library/matplotlib-cpp
-        ${CMAKE_SOURCE_DIR}/library/eigen-3.4.0
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/library/matplotlib-cpp
+    ${CMAKE_SOURCE_DIR}/library/eigen-3.4.0
 )
 
 # build doxygen
 option(DOXYGEN "Compile doxygen files" OFF)
+
 if(DOXYGEN)
     message(STATUS "Build documentation open")
     include(cmake/build_doxygen.cmake)
