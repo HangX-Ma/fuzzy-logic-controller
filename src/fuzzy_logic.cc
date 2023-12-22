@@ -122,10 +122,9 @@ void FuzzyLogic::rangeCheck(scalar& input, Membership* ptr) {
 }
 
 bool FuzzyLogic::controllerSwitchCheck(void) {
-    scalar ratio = 1.0 / 2.0;
-    if (control_.err > e->membership_->getMaximum() * ratio || control_.err < e->membership_->getMinimum() * ratio) {
+    if (control_.err > e->membership_->getMaximum() * ratio_ || control_.err < e->membership_->getMinimum() * ratio_) {
         return true;
-    } else if (control_.d_err > ec->membership_->getMaximum() * ratio || control_.d_err < ec->membership_->getMinimum() * ratio) {
+    } else if (control_.d_err > ec->membership_->getMaximum() * ratio_ || control_.d_err < ec->membership_->getMinimum() * ratio_) {
         return true;
     }
 

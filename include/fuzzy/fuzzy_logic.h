@@ -89,6 +89,7 @@ class FuzzyLogic {
 
         scalar algo(const Control_t input, bool use_p_ctrl = false, const scalar output_exp_scale = 0.0);
         void setFuzzyRules(const Matrix &rule_table);
+        void setSwitchRatio(double ratio) { ratio_ = ratio; }
         void getInfo(void);
 
 #if FC_USE_MATPLOTLIB
@@ -117,6 +118,7 @@ class FuzzyLogic {
         std::unordered_map<int, scalar>inference_map_;
 
         Err_t control_;
+        double ratio_;
 };
 
 }
