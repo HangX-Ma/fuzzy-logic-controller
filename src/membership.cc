@@ -3,31 +3,32 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
-using namespace fc;
+namespace fc {
+
 
 Membership::Membership(std::string name, scalar height)
     : height_(height),
-      name_(name),
-      type_(membershipType::None),
+      name_(std::move(name)),
+      type_(MembershipType::None),
       discourse_size_(0) {}
 
-Membership::~Membership() {}
 
 std::optional<scalar> Membership::calculate(const scalar input, const std::vector<scalar>& param_set) {
     scalar ret;
 
     switch (type_) {
-    case membershipType::Triangle:
+    case MembershipType::Triangle:
         ret = triangle(input, param_set.at(0), param_set.at(1), param_set.at(2));
         break;
-    case membershipType::Trapezoid:
+    case MembershipType::Trapezoid:
         ret = trapezoid(input, param_set.at(0), param_set.at(1), param_set.at(2), param_set.at(3));
         break;
-    case membershipType::Gaussian:
+    case MembershipType::Gaussian:
         ret = gaussian(input, param_set.at(0), param_set.at(1));
         break;
-    case membershipType::None:
+    case MembershipType::None:
         /* fall through */
     default:
         throw std::invalid_argument("[membership error] set membership type first");
@@ -40,22 +41,23 @@ std::optional<scalar> Membership::calculate(const scalar input, const std::vecto
     return std::nullopt;
 }
 
-Range Membership::calculateRange(const membershipType type, const std::vector<scalar>& param_set) {
+Range Membership::calculateRange(const MembershipType type, const std::vector<scalar>& param_set) {
     Range range;
-    scalar mean, derivation;
+    scalar mean;
+    scalar derivation;
     switch (type) {
-    case membershipType::Triangle:
+    case MembershipType::Triangle:
         range = Range{param_set.at(0), param_set.at(2)};
         break;
-    case membershipType::Trapezoid:
+    case MembershipType::Trapezoid:
         range = Range{param_set.at(0), param_set.at(3)};
         break;
-    case membershipType::Gaussian:
+    case MembershipType::Gaussian:
         mean = param_set.at(0);
         derivation = param_set.at(1);
         range = Range{-3.0 * derivation + mean, 3.0 * derivation + mean};
         break;
-    case membershipType::None:
+    case MembershipType::None:
         /* fall through */
     default:
         throw std::invalid_argument("[membership error] set membership type first");
@@ -72,11 +74,11 @@ Range Membership::calculateRange(const membershipType type, const std::vector<sc
     return range;
 }
 
-void Membership::setMembershipParam(const membershipType type,
+void Membership::setMembershipParam(const MembershipType type,
                                     const scalar input_params[],
                                     uint8_t params_num)
 {
-    uint8_t size = static_cast<uint8_t>(type);
+    auto size = static_cast<uint8_t>(type);
     std::vector<scalar> param_set;
 
     if (params_num % size != 0) {
@@ -112,7 +114,9 @@ void Membership::setMembershipParam(const membershipType type,
 
 
 scalar Membership::triangle(scalar x, scalar vertexA, scalar vertexB, scalar vertexC) const {
-    if (Operation::isNaN(x)) return fc::nan;
+    if (Operation::isNaN(x)) {
+        return fc::nan;
+    }
 
     if (Operation::isLessThan(x, vertexA) || Operation::isGreaterThan(x, vertexC)) {
         return height_ * 0.0;
@@ -142,7 +146,9 @@ scalar Membership::triangle(scalar x, scalar vertexA, scalar vertexB, scalar ver
 
 
 scalar Membership::trapezoid(scalar x, scalar vertexA, scalar vertexB, scalar vertexC, scalar vertexD) const {
-    if (Operation::isNaN(x)) return fc::nan;
+    if (Operation::isNaN(x)) {
+        return fc::nan;
+    }
 
     if (Operation::isLessThan(x, vertexA) || Operation::isGreaterThan(x, vertexD)) {
         return height_ * 0.0;
@@ -203,7 +209,7 @@ const Range Membership::getRange(size_t discourse_id) {
     return params_range_.at(discourse_id);
 }
 
-membershipType Membership::getType(void) {
+MembershipType Membership::getType(void) {
     return type_;
 }
 
@@ -218,4 +224,6 @@ scalar Membership::getMinimum(void) {
 
 scalar Membership::getMaximum(void) {
     return maximum_;
+}
+
 }

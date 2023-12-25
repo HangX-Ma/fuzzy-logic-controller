@@ -9,7 +9,7 @@
 #ifndef __FC_FUZZY_DEF__H__
 #define __FC_FUZZY_DEF__H__
 
-#include "utils/base.h"
+#include "fuzzy/base.h"
 
 constexpr const int8_t NL = -4;
 constexpr const int8_t NB = -3;

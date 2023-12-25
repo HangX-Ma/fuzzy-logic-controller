@@ -9,8 +9,8 @@
 #ifndef __FC_FUZZY_PID__H__
 #define __FC_FUZZY_PID__H__
 
-#include "utils/base.h"
-#include "utils/operation.h"
+#include "fuzzy/base.h"
+#include "fuzzy/operation.h"
 
 namespace fc {
 
@@ -19,29 +19,29 @@ class PController {
         PController();
         ~PController();
 
-        scalar algo(const scalar err);
+        scalar algo(scalar err);
 
-        void setProportional(const scalar Kp);
-        scalar getProportional(void);
+        void setProportional(scalar Kp);
+        scalar getProportional();
     private:
         scalar Kp_;
 };
 
-typedef struct PID {
+using PID_t = struct PID {
     scalar Kp;
     scalar Ki;
     scalar Kd;
-} PID_t;
+};
 
 class PIDController {
     public:
         PIDController();
         ~PIDController();
 
-        scalar algo(const scalar err);
+        scalar algo(scalar err);
 
-        void setPIDParams(const PID_t pid);
-        void clearIntegralPrev(void);
+        void setPIDParams(PID_t pid);
+        void clearIntegralPrev();
 
         scalar prev_err_;
     private:

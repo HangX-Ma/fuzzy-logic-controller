@@ -43,6 +43,9 @@ add_compile_options(
     # -Wsign-conversion # sign <-> unsigned conversion warning
 )
 
+# build shared option
+option(CRISP_BUILD_SHARED "Build shared library" OFF)
+
 add_definitions(
     "-DFC_USE_DOUBLE"
     "-DFC_USE_MATPLOTLIB"
@@ -55,49 +58,28 @@ add_definitions(
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-file(GLOB_RECURSE SOURCES
-    "src/*.*"
-)
+add_subdirectory(library)
 
-# format library
-add_subdirectory(${CMAKE_SOURCE_DIR}/library/fmt-10.1.0 EXCLUDE_FROM_ALL)
+# fuzzy library
+file(GLOB_RECURSE FUZZY_SOURCES "src/*.*")
+file(GLOB FUZZY_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/fuzzy/*.h")
+source_group("Header Files\\fuzzy" FILES ${FUZZY_HEADERS})
 
-# Library target
-add_library(matplotlib_cpp INTERFACE)
-target_include_directories(matplotlib_cpp
-    INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/examples>
-    $<INSTALL_INTERFACE:include>
-)
-target_compile_features(matplotlib_cpp INTERFACE
-    cxx_std_17
-)
-
-find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
-target_link_libraries(matplotlib_cpp INTERFACE
-    Python3::Python
-    Python3::Module
-)
-
-find_package(Python3 COMPONENTS NumPy)
-
-if(Python3_NumPy_FOUND)
-    target_link_libraries(matplotlib_cpp INTERFACE
-        Python3::NumPy
-    )
+if(CRISP_BUILD_SHARED OR BUILD_SHARED_LIBS)
+    add_library(fuzzy SHARED ${FUZZY_SOURCES} ${FUZZY_HEADERS})
 else()
-    target_compile_definitions(matplotlib_cpp INTERFACE WITHOUT_NUMPY)
+    add_library(fuzzy STATIC ${FUZZY_SOURCES} ${FUZZY_HEADERS})
 endif()
 
-# project target
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} matplotlib_cpp fmt-header-only)
-target_include_directories(${PROJECT_NAME}
-    PRIVATE
+target_link_libraries(fuzzy matplotlib_cpp fmt-header-only Eigen3::Eigen)
+target_include_directories(
+    fuzzy PUBLIC
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/library/matplotlib-cpp
-    ${CMAKE_SOURCE_DIR}/library/eigen-3.4.0
 )
+
+# example
+add_executable(fuzzy_demo example/demo.cc)
+target_link_libraries(fuzzy_demo PRIVATE fuzzy)
 
 # build doxygen
 option(DOXYGEN "Compile doxygen files" OFF)

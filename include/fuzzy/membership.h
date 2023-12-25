@@ -10,39 +10,39 @@
 #ifndef __FC_FUZZY_MEMBERSHIP__H__
 #define __FC_FUZZY_MEMBERSHIP__H__
 
-#include "utils/base.h"
-#include "utils/operation.h"
+#include "fuzzy/base.h"
+#include "fuzzy/operation.h"
 #include <optional>
 
 namespace fc {
 
-enum class membershipType : uint8_t {
+enum class MembershipType : uint8_t {
     None = 0,
     Gaussian  = 2,
     Triangle  = 3,
     Trapezoid = 4,
 };
 
-typedef std::pair<scalar/*minimum*/, scalar/*maximum*/> Range;
+using Range = std::pair<scalar, scalar>;
 
 class Membership {
     public:
-        explicit Membership(const std::string name = "", scalar height = 1.0);
-        ~Membership();
+        explicit Membership(std::string name = "", scalar height = 1.0);
+        ~Membership() = default;
 
-        std::optional<scalar> calculate(const scalar input, const std::vector<scalar>& param_set);
+        std::optional<scalar> calculate(scalar input, const std::vector<scalar>& param_set);
 
-        void setMembershipParam(const membershipType type, const scalar input_params[], const uint8_t params_num);
+        void setMembershipParam(MembershipType type, const scalar input_params[], uint8_t params_num);
         void setHeight(scalar height);
 
-        scalar getHeight(void) const;
-        size_t getDiscourseSize(void);
+        scalar getHeight() const;
+        size_t getDiscourseSize();
         const std::vector<scalar> getParamSet(size_t discourse_id);
         const Range getRange(size_t discourse_id);
-        membershipType getType(void);
-        const std::string& getName(void);
-        scalar getMinimum(void);
-        scalar getMaximum(void);
+        MembershipType getType();
+        const std::string& getName();
+        scalar getMinimum();
+        scalar getMaximum();
     private:
         /**
          * @brief Compute membership function value at \f$x\f$
@@ -113,18 +113,19 @@ class Membership {
                         scalar mean              = fc::nan,
                         scalar standardDeviation = fc::nan) const;
 
-        Range calculateRange(const membershipType type, const std::vector<scalar>& param_set);
+        Range calculateRange(MembershipType type, const std::vector<scalar>& param_set);
 
         scalar height_;
         std::string name_;
-        membershipType type_;
+        MembershipType type_;
         size_t discourse_size_;
         std::vector<std::vector<scalar>> params_;
         std::vector<Range> params_range_;
         scalar minimum_;
         scalar maximum_;
 };
-}
+
+}  // namespace fc
 
 
 #endif  //!__FC_FUZZY_MEMBERSHIP__H__

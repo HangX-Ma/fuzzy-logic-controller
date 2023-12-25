@@ -18,7 +18,7 @@ Fuzzification::~Fuzzification() {}
 
 void Fuzzification::init(const scalar bound,
                          const bool reverse,
-                         const membershipType type,
+                         const MembershipType type,
                          const scalar input_params[],
                          const uint8_t params_num)
 {
@@ -122,9 +122,10 @@ void FuzzyLogic::rangeCheck(scalar& input, Membership* ptr) {
 }
 
 bool FuzzyLogic::controllerSwitchCheck(void) {
-    if (control_.err > e->membership_->getMaximum() * switch_ratio_ || control_.err < e->membership_->getMinimum() * switch_ratio_) {
+    if (control_.err > e->membership_->getMaximum() * switch_ratio_ || control_.err < -e->membership_->getMinimum() * switch_ratio_) {
         return true;
-    } else if (control_.d_err > ec->membership_->getMaximum() * switch_ratio_ || control_.d_err < ec->membership_->getMinimum() * switch_ratio_) {
+    }
+    if (control_.d_err > ec->membership_->getMaximum() * switch_ratio_ || control_.d_err < -ec->membership_->getMinimum() * switch_ratio_) {
         return true;
     }
 
@@ -307,19 +308,19 @@ void Fuzzification::plotMembershipFunctions(bool show) {
         plt::show();
     } else {
         switch (membership_->getType()) {
-        case membershipType::Triangle:
+        case MembershipType::Triangle:
             plt::title("Membership Functions: Triangle");
             plt::save("assets/" + getName() + "_membership_triangle.png");
             break;
-        case membershipType::Trapezoid:
+        case MembershipType::Trapezoid:
             plt::title("Membership Functions: Trapezoid");
             plt::save("assets/" + getName() + "_membership_trapezoid.png");
             break;
-        case membershipType::Gaussian:
+        case MembershipType::Gaussian:
             plt::title("Membership Functions: Gaussian");
             plt::save("assets/" + getName() + "_membership_gaussian.png");
             break;
-        case membershipType::None:
+        case MembershipType::None:
             /* fall through */
         default:
             throw std::invalid_argument("[membership error] set membership type first");

@@ -10,8 +10,8 @@
 #ifndef __FC_FUZZY_CONTROL__H__
 #define __FC_FUZZY_CONTROL__H__
 
-#include "utils/base.h"
-#include "utils/operation.h"
+#include "fuzzy/base.h"
+#include "fuzzy/operation.h"
 #include "fuzzy/membership.h"
 #include "fuzzy/pid.h"
 #include "Eigen/Eigen"
@@ -21,13 +21,13 @@
 
 namespace fc {
 
-typedef std::pair<scalar/*premise*/, size_t/*discourse id*/> PremisePair;
-typedef std::pair<scalar/* area */, scalar/*centroid*/> CentroidPair;
+using PremisePair = std::pair<scalar, size_t>;
+using CentroidPair = std::pair<scalar, scalar>;
 
-typedef struct Inference {
+using Inference_t = struct Inference {
     scalar weight;
     int rule;
-} Inference_t;
+};
 
 enum class FuzzyProcess {
     FuzzyUninit,
@@ -37,22 +37,22 @@ enum class FuzzyProcess {
 //? Note: e/ec factor=discourse_size/bound, u factor=bound/discourse_size
 class Fuzzification {
     public:
-        Fuzzification(const std::string name = "", scalar bound = 0.0);
+        explicit Fuzzification( std::string name = "", scalar bound = 0.0);
         ~Fuzzification();
 
-        void init(const scalar bound,
-                  const bool reverse,
-                  const membershipType type,
+        void init(scalar bound,
+                  bool reverse,
+                  MembershipType type,
                   const scalar input_params[],
-                  const uint8_t params_num);
+                  uint8_t params_num);
         void fuzzify(scalar input);
 
-        void setFactor(const scalar ratio, const bool reverse);
-        void setBound(const scalar bound);
+        void setFactor(scalar ratio, bool reverse);
+        void setBound(scalar bound);
 
-        const std::string& getName(void);
-        scalar getFactor(void);
-        scalar getBound(void);
+        const std::string& getName();
+        scalar getFactor();
+        scalar getBound();
 
 #if FC_USE_MATPLOTLIB
         void plotMembershipFunctions(bool show = false);
@@ -71,26 +71,26 @@ class Fuzzification {
 };
 
 
-typedef struct Err {
+using Err_t = struct Err {
     scalar err;
     scalar prev_err;
     scalar d_err;
-} Err_t;
+};
 
-typedef struct Control {
+using Control_t = struct Control {
     scalar target;
     scalar actual;
-} Control_t;
+};
 
 class FuzzyLogic {
     public:
-        FuzzyLogic(int resolution = 200);
+        explicit FuzzyLogic(int resolution = 200);
         ~FuzzyLogic();
 
-        scalar algo(const Control_t input, bool use_p_ctrl = false, const scalar output_exp_scale = 0.0);
+        scalar algo( Control_t input, bool use_p_ctrl = false, scalar output_exp_scale = 0.0);
         void setFuzzyRules(const Matrix &rule_table);
         void setSwitchRatio(double switch_ratio) { switch_ratio_ = switch_ratio; }
-        void getInfo(void);
+        void getInfo();
 
 #if FC_USE_MATPLOTLIB
         void plotFuzzyControlSurface(bool show = false);
@@ -107,11 +107,11 @@ class FuzzyLogic {
 
         std::unique_ptr<PController> p_ctrl_;
     private:
-        void inference(void);
-        scalar defuzzify(void);
+        void inference();
+        scalar defuzzify();
         CentroidPair centroid(size_t rule_id, scalar truncation_premise);
         void rangeCheck(scalar& input, Membership* ptr);
-        bool controllerSwitchCheck(void);
+        bool controllerSwitchCheck();
 
         int resolution_;
         Matrix rule_table_;
