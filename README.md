@@ -31,9 +31,14 @@ Compile the project after you download this repository. You can find the output 
 ```shell
 git clone https://github.com/HangX-Ma/fuzzy-logic-controller.git
 cd fuzzy-logic-controller
+git submodule update --init --recursive
 cmake -B build -S .
 cmake --build build
+# run the demo!
+./build/bin/fuzzy_demo
 ```
+
+You can also include this repository and compile it as a shared or static library. `libfuzzy.a` or `libfuzzy.so` will be found in `build` folder.
 
 This repository only provide three membership functions: _Triangle_, _Trapezoid_, _Gaussian_. You need to provide your configuration parameters by yourself.
 
