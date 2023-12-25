@@ -12,44 +12,50 @@
 #include "fuzzy/base.h"
 #include "fuzzy/operation.h"
 
-namespace fc {
+namespace fc
+{
 
-class PController {
-    public:
-        PController();
-        ~PController();
+class PController
+{
+public:
+    PController();
+    ~PController();
 
-        scalar algo(scalar err);
+    scalar algo(scalar err);
 
-        void setProportional(scalar Kp);
-        scalar getProportional();
-    private:
-        scalar Kp_;
+    void setProportional(scalar Kp);
+    scalar getProportional();
+
+private:
+    scalar Kp_;
 };
 
-using PID_t = struct PID {
+using PID_t = struct PID
+{
     scalar Kp;
     scalar Ki;
     scalar Kd;
 };
 
-class PIDController {
-    public:
-        PIDController();
-        ~PIDController();
+class PIDController
+{
+public:
+    PIDController();
+    ~PIDController();
 
-        scalar algo(scalar err);
+    scalar algo(scalar err);
 
-        void setPIDParams(PID_t pid);
-        void clearIntegralPrev();
+    void setPIDParams(PID_t pid);
+    void clearIntegralPrev();
 
-        scalar prev_err_;
-    private:
-        PID_t pid_;
-        scalar integral_prev_;
-        scalar integral_saturation_;
+    scalar prev_err_;
+
+private:
+    PID_t pid_;
+    scalar integral_prev_;
+    scalar integral_saturation_;
 };
 
-}
+} // namespace fc
 
-#endif  //!__FC_FUZZY_PID__H__
+#endif //!__FC_FUZZY_PID__H__

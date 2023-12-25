@@ -5,11 +5,10 @@ using namespace fc;
 PController::PController() : Kp_(0) {}
 PController::~PController() {}
 
-scalar PController::algo(const scalar err) {
-    return Kp_ * err;
-}
+scalar PController::algo(const scalar err) { return Kp_ * err; }
 
-void PController::setProportional(const scalar Kp) {
+void PController::setProportional(const scalar Kp)
+{
     if (Kp < -fc::eps) {
         warnmsgln("[PController] input Kp is negative and it will be set to zero");
         Kp_ = 0.0;
@@ -17,20 +16,18 @@ void PController::setProportional(const scalar Kp) {
     Kp_ = Kp;
 }
 
-scalar PController::getProportional(void) {
-    return Kp_;
-}
+scalar PController::getProportional(void) { return Kp_; }
 
 PIDController::PIDController()
-    : prev_err_(0),
-      pid_(PID_t{0, 0, 0}),
-      integral_prev_(0),
-      integral_saturation_(0) {}
+    : prev_err_(0), pid_(PID_t{0, 0, 0}), integral_prev_(0), integral_saturation_(0)
+{
+}
 
 PIDController::~PIDController() {}
 
-scalar PIDController::algo(const scalar err) {
-    scalar proportional, integral, derivative , output;
+scalar PIDController::algo(const scalar err)
+{
+    scalar proportional, integral, derivative, output;
 
     // u_p  = P *e(k)
     proportional = pid_.Kp * err;
@@ -53,12 +50,13 @@ scalar PIDController::algo(const scalar err) {
 
     // save data for next control period
     integral_prev_ = integral;
-    prev_err_      = err;
+    prev_err_ = err;
 
     return output;
 }
 
-void PIDController::setPIDParams(const PID_t pid) {
+void PIDController::setPIDParams(const PID_t pid)
+{
     if (pid.Kp < -fc::eps) {
         warnmsgln("[PIDController] input Kp is negative and it will be set to zero");
         pid_.Kp = 0.0;
@@ -75,6 +73,4 @@ void PIDController::setPIDParams(const PID_t pid) {
     }
 }
 
-void PIDController::clearIntegralPrev(void) {
-    integral_prev_ = 0.0;
-}
+void PIDController::clearIntegralPrev(void) { integral_prev_ = 0.0; }

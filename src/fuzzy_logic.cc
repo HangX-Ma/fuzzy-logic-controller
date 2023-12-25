@@ -6,21 +6,15 @@ using namespace fc;
 
 //? Fuzzification
 Fuzzification::Fuzzification(const std::string name, scalar bound)
-    : name_(name),
-      state_(FuzzyProcess::FuzzyUninit),
-      factor_(0),
-      bound_(bound)
+    : name_(name), state_(FuzzyProcess::FuzzyUninit), factor_(0), bound_(bound)
 {
     membership_ = std::make_unique<Membership>(name);
 }
 
 Fuzzification::~Fuzzification() {}
 
-void Fuzzification::init(const scalar bound,
-                         const bool reverse,
-                         const MembershipType type,
-                         const scalar input_params[],
-                         const uint8_t params_num)
+void Fuzzification::init(const scalar bound, const bool reverse, const MembershipType type,
+                         const scalar input_params[], const uint8_t params_num)
 {
     membership_->setMembershipParam(type, input_params, params_num);
     bound_ = bound;
@@ -32,22 +26,26 @@ void Fuzzification::init(const scalar bound,
     state_ = FuzzyProcess::FuzzyInit;
 }
 
-void Fuzzification::fuzzify(scalar input) {
+void Fuzzification::fuzzify(scalar input)
+{
     std::optional<scalar> premise;
 
     premise_pairs_.clear();
 
     for (size_t idx = 0; idx < membership_->getDiscourseSize(); idx++) {
         premise = membership_->calculate(input, membership_->getParamSet(idx));
-        // dbgmsgln("[fuzzify] %s - premise: %.3f, idx: %llu, input: %.3f", getName().c_str(), premise.value(), idx, input);
+        // dbgmsgln("[fuzzify] %s - premise: %.3f, idx: %llu, input: %.3f", getName().c_str(),
+        // premise.value(), idx, input);
         if (premise != std::nullopt && fabs(premise.value()) >= fc::eps) {
             premise_pairs_.emplace_back(std::make_pair(premise.value(), idx));
-            dbgmsgln("[fuzzify] %s - input: %.3f premise: %.3f, discourse ID: %llu", getName().c_str(), input, premise.value(), idx);
+            dbgmsgln("[fuzzify] %s - input: %.3f premise: %.3f, discourse ID: %llu",
+                     getName().c_str(), input, premise.value(), idx);
         }
     }
 }
 
-void Fuzzification::setFactor(const scalar ratio, const bool reverse) {
+void Fuzzification::setFactor(const scalar ratio, const bool reverse)
+{
     if (state_ != FuzzyProcess::FuzzyInit) {
         warnmsgln("[fuzzification] please init first");
         return;
@@ -60,7 +58,8 @@ void Fuzzification::setFactor(const scalar ratio, const bool reverse) {
     }
 }
 
-void Fuzzification::setBound(scalar bound) {
+void Fuzzification::setBound(scalar bound)
+{
     if (state_ != FuzzyProcess::FuzzyInit) {
         warnmsgln("[fuzzification] please init first");
         return;
@@ -74,44 +73,39 @@ void Fuzzification::setBound(scalar bound) {
     bound_ = bound;
 }
 
-const std::string& Fuzzification::getName(void) {
-    return name_;
-}
+const std::string &Fuzzification::getName(void) { return name_; }
 
-scalar Fuzzification::getFactor(void) {
-    return factor_;
-}
+scalar Fuzzification::getFactor(void) { return factor_; }
 
-scalar Fuzzification::getBound(void) {
-    return bound_;
-}
-
+scalar Fuzzification::getBound(void) { return bound_; }
 
 //? FuzzyLogic
-FuzzyLogic::FuzzyLogic(int resolution)
-    : resolution_(resolution),
-      control_(Err_t{0, 0, 0})
+FuzzyLogic::FuzzyLogic(int resolution) : resolution_(resolution), control_(Err_t{0, 0, 0})
 {
-    e  = std::make_unique<Fuzzification>("e");
+    e = std::make_unique<Fuzzification>("e");
     ec = std::make_unique<Fuzzification>("ec");
-    u  = std::make_unique<Fuzzification>("u");
+    u = std::make_unique<Fuzzification>("u");
 
     p_ctrl_ = std::make_unique<PController>();
 }
 
 FuzzyLogic::~FuzzyLogic() {}
 
-scalar sign(scalar x) {
+scalar sign(scalar x)
+{
     if (x >= eps) {
         return 1.0;
-    } else if (x <= -eps) {
+    }
+    else if (x <= -eps) {
         return -1.0;
-    } else {
+    }
+    else {
         return 0.0;
     }
 }
 
-void FuzzyLogic::rangeCheck(scalar& input, Membership* ptr) {
+void FuzzyLogic::rangeCheck(scalar &input, Membership *ptr)
+{
     if (input > ptr->getMaximum()) {
         input = ptr->getMaximum();
     }
@@ -121,11 +115,16 @@ void FuzzyLogic::rangeCheck(scalar& input, Membership* ptr) {
     }
 }
 
-bool FuzzyLogic::controllerSwitchCheck(void) {
-    if (control_.err > e->membership_->getMaximum() * switch_ratio_ || control_.err < -e->membership_->getMinimum() * switch_ratio_) {
+bool FuzzyLogic::controllerSwitchCheck(void)
+{
+    if (control_.err > e->membership_->getMaximum() * switch_ratio_
+        || control_.err < -e->membership_->getMinimum() * switch_ratio_)
+    {
         return true;
     }
-    if (control_.d_err > ec->membership_->getMaximum() * switch_ratio_ || control_.d_err < -ec->membership_->getMinimum() * switch_ratio_) {
+    if (control_.d_err > ec->membership_->getMaximum() * switch_ratio_
+        || control_.d_err < -ec->membership_->getMinimum() * switch_ratio_)
+    {
         return true;
     }
 
@@ -133,21 +132,24 @@ bool FuzzyLogic::controllerSwitchCheck(void) {
 }
 
 static size_t iter = 0;
-scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar output_exp_scale) {
+scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar output_exp_scale)
+{
     scalar output, defuzzify_output, err, d_err;
 
     // TODO: input may out of max bound, acquiring limitation for scaling.
     // calculate the basic control params and normalize them to discourse range
-    err   = input.target - input.actual;
+    err = input.target - input.actual;
     d_err = err - control_.prev_err;
 
-    control_.err      = e->getFactor() * (fabs(err) > e->getBound() ? sign(err) * e->getBound() : err);
-    control_.d_err    = ec->getFactor() * (fabs(d_err) > ec->getBound() ? sign(err) * ec->getBound() : d_err);
+    control_.err = e->getFactor() * (fabs(err) > e->getBound() ? sign(err) * e->getBound() : err);
+    control_.d_err
+        = ec->getFactor() * (fabs(d_err) > ec->getBound() ? sign(err) * ec->getBound() : d_err);
     control_.prev_err = fabs(err) > e->getBound() ? sign(err) * e->getBound() : err;
 
     if (use_p_ctrl && controllerSwitchCheck()) {
         output = p_ctrl_->algo(control_.err) * u->getFactor();
-    } else {
+    }
+    else {
         // ensure the factor will not make e or ec out of range
         rangeCheck(control_.err, e->membership_.get());
         rangeCheck(control_.d_err, ec->membership_.get());
@@ -160,22 +162,28 @@ scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar out
         defuzzify_output = defuzzify();
 
         // make output bigger when error is big: (sign) (fabs(output))^(exp(scale)) * Ku
-        if ((fabs(output_exp_scale) > fc::eps && fabs(output_exp_scale) < 1.0) && fabs(defuzzify_output) > 0.5) {
-            output = sign(defuzzify_output) * pow(fabs(defuzzify_output), exp(output_exp_scale)) * u->getFactor();
-        } else {
+        if ((fabs(output_exp_scale) > fc::eps && fabs(output_exp_scale) < 1.0)
+            && fabs(defuzzify_output) > 0.5)
+        {
+            output = sign(defuzzify_output) * pow(fabs(defuzzify_output), exp(output_exp_scale))
+                     * u->getFactor();
+        }
+        else {
             output = defuzzify_output * u->getFactor();
         }
     }
 
-    if (output >= u->getBound()) output = u->getBound();
-    if (output <= -u->getBound()) output = -u->getBound();
+    if (output >= u->getBound())
+        output = u->getBound();
+    if (output <= -u->getBound())
+        output = -u->getBound();
 
     // control info
     if (iter == 0) {
         dbgmsgln("Times    Target    Actual    Error    DError    PError");
     }
-    dbgmsgln("%04llu     %06.2f    %06.2f    %06.3f   %06.3f    %06.3f",
-        iter++, input.target, input.actual, control_.err, control_.d_err, control_.prev_err);
+    dbgmsgln("%04llu     %06.2f    %06.2f    %06.3f   %06.3f    %06.3f", iter++, input.target,
+             input.actual, control_.err, control_.d_err, control_.prev_err);
 
 #if FC_USE_MATPLOTLIB
     control_plot_.emplace_back(Control_t{input.target, input.actual});
@@ -185,35 +193,39 @@ scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar out
     return output;
 }
 
-void FuzzyLogic::inference(void) {
+void FuzzyLogic::inference(void)
+{
     Inference_t inference_set;
 
     size_t rows = e->premise_pairs_.size();
     size_t cols = ec->premise_pairs_.size();
 
-    size_t e_discourse_size  = e->membership_->getDiscourseSize();
+    size_t e_discourse_size = e->membership_->getDiscourseSize();
     size_t ec_discourse_size = ec->membership_->getDiscourseSize();
 
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
-            const auto [e_premise, e_discourse_id]   = e->premise_pairs_.at(i);
+            const auto [e_premise, e_discourse_id] = e->premise_pairs_.at(i);
             const auto [ec_premise, ec_discourse_id] = ec->premise_pairs_.at(j);
             inference_set.weight = e_premise * ec_premise;
-            inference_set.rule = static_cast<int>(rule_table_(e_discourse_size - 1 - e_discourse_id, ec_discourse_size - 1 - ec_discourse_id));
+            inference_set.rule = static_cast<int>(rule_table_(
+                e_discourse_size - 1 - e_discourse_id, ec_discourse_size - 1 - ec_discourse_id));
             dbgmsgln("[Inference] rule %llu => RuleTable(%llu, %llu)=%d, Weight=%.4f",
-                (i * rows + j), e_discourse_id, ec_discourse_id, inference_set.rule, inference_set.weight);
+                     (i * rows + j), e_discourse_id, ec_discourse_id, inference_set.rule,
+                     inference_set.weight);
             // If the rule overlaps the map stored, we need to keep the higher weight one.
-            if(auto res = inference_map_.find(inference_set.rule); res != inference_map_.end()) {
+            if (auto res = inference_map_.find(inference_set.rule); res != inference_map_.end()) {
                 res->second = fmax(inference_set.weight, res->second);
-            } else {
+            }
+            else {
                 inference_map_.insert({inference_set.rule, inference_set.weight});
             }
         }
     }
 }
 
-
-CentroidPair FuzzyLogic::centroid(size_t rule_id, scalar truncation_premise) {
+CentroidPair FuzzyLogic::centroid(size_t rule_id, scalar truncation_premise)
+{
     scalar x, y;
     scalar x_centroid = 0, area = 0;
 
@@ -231,11 +243,11 @@ CentroidPair FuzzyLogic::centroid(size_t rule_id, scalar truncation_premise) {
     return CentroidPair{x_centroid, area};
 }
 
-
-scalar FuzzyLogic::defuzzify(void) {
+scalar FuzzyLogic::defuzzify(void)
+{
     // centroid method
     scalar num = 0, den = 0;
-    for (const auto& [rule, weight]: inference_map_) {
+    for (const auto &[rule, weight] : inference_map_) {
         const size_t rule_id = static_cast<size_t>(rule) + u->membership_->getDiscourseSize() / 2;
         dbgmsgln("[defuzzify] rule id %d, Weight %.4f", rule, weight);
         const auto [x_centroid, area] = centroid(rule_id, weight);
@@ -248,25 +260,27 @@ scalar FuzzyLogic::defuzzify(void) {
     return num / den;
 }
 
-void FuzzyLogic::setFuzzyRules(const Matrix &rule_table) {
+void FuzzyLogic::setFuzzyRules(const Matrix &rule_table)
+{
     if (static_cast<size_t>(rule_table.cols()) != ec->membership_->getDiscourseSize()
         || static_cast<size_t>(rule_table.rows()) != e->membership_->getDiscourseSize())
     {
-        throw std::length_error("[fuzzy logic] fuzzy rules matrix size needs to fit the discourse size");
+        throw std::length_error(
+            "[fuzzy logic] fuzzy rules matrix size needs to fit the discourse size");
     }
     rule_table_ = rule_table;
 }
 
-
-void FuzzyLogic::getInfo(void) {
+void FuzzyLogic::getInfo(void)
+{
     std::cout << std::endl;
     infomsgln("Fuzzy logic controller info:");
-    infomsgln("=> discourse e:  [%.3f, %.3f], min-max[%.2f, %.2f]",
-        -e->getBound(), e->getBound(), e->membership_->getMinimum(), e->membership_->getMaximum());
-    infomsgln("=> discourse ec: [%.3f, %.3f], min-max[%.2f, %.2f]",
-        -ec->getBound(), ec->getBound(), e->membership_->getMinimum(), e->membership_->getMaximum());
-    infomsgln("=> discourse u:  [%.3f, %.3f], min-max[%.2f, %.2f]",
-        -u->getBound(), u->getBound(), e->membership_->getMinimum(), e->membership_->getMaximum());
+    infomsgln("=> discourse e:  [%.3f, %.3f], min-max[%.2f, %.2f]", -e->getBound(), e->getBound(),
+              e->membership_->getMinimum(), e->membership_->getMaximum());
+    infomsgln("=> discourse ec: [%.3f, %.3f], min-max[%.2f, %.2f]", -ec->getBound(), ec->getBound(),
+              e->membership_->getMinimum(), e->membership_->getMaximum());
+    infomsgln("=> discourse u:  [%.3f, %.3f], min-max[%.2f, %.2f]", -u->getBound(), u->getBound(),
+              e->membership_->getMinimum(), e->membership_->getMaximum());
     infomsgln("=> error quantifying factor [Ke]:             %.4f", e->getFactor());
     infomsgln("=> derivative error quantifying factor [Kec]: %.4f", ec->getFactor());
     infomsgln("=> output scaling factor [Ku]:                %.4f", u->getFactor());
@@ -279,7 +293,8 @@ void FuzzyLogic::getInfo(void) {
 #include "matplotlibcpp.h"
 namespace plt = matplotlibcpp;
 
-void Fuzzification::plotMembershipFunctions(bool show) {
+void Fuzzification::plotMembershipFunctions(bool show)
+{
     int n = 500;
     std::vector<double> x(n), y(n), w(n, 0);
 
@@ -297,8 +312,11 @@ void Fuzzification::plotMembershipFunctions(bool show) {
             x.at(i) = minimum + i * dx;
             y.at(i) = membership_->calculate(x.at(i), params).value_or(0);
         }
-        plt::plot(x, y, {{"linewidth", "2.0"}});
-        plt::plot(x, w,"r");
+        plt::plot(x, y,
+                  {
+                      {"linewidth", "2.0"}
+        });
+        plt::plot(x, w, "r");
     }
     plt::ylabel("Degree of membership");
     plt::xlabel("input/output");
@@ -306,7 +324,8 @@ void Fuzzification::plotMembershipFunctions(bool show) {
 
     if (show) {
         plt::show();
-    } else {
+    }
+    else {
         switch (membership_->getType()) {
         case MembershipType::Triangle:
             plt::title("Membership Functions: Triangle");
@@ -329,17 +348,19 @@ void Fuzzification::plotMembershipFunctions(bool show) {
     plt::close();
 }
 
-void FuzzyLogic::plotFuzzyControlSurface(bool show) {
+void FuzzyLogic::plotFuzzyControlSurface(bool show)
+{
     std::vector<std::vector<double>> x, y, z;
     double e_discourse_bound = static_cast<double>(e->membership_->getDiscourseSize() / 2);
     double ec_discourse_bound = static_cast<double>(ec->membership_->getDiscourseSize() / 2);
 
-    for (double i = -e_discourse_bound; i <= e_discourse_bound;  i++) {
+    for (double i = -e_discourse_bound; i <= e_discourse_bound; i++) {
         std::vector<double> x_row, y_row, z_row;
-        for (double j = -ec_discourse_bound; j <= ec_discourse_bound;  j++) {
+        for (double j = -ec_discourse_bound; j <= ec_discourse_bound; j++) {
             x_row.push_back(i);
             y_row.push_back(j);
-            z_row.push_back(rule_table_(static_cast<size_t>(i + e_discourse_bound), static_cast<size_t>(j + ec_discourse_bound)));
+            z_row.push_back(rule_table_(static_cast<size_t>(i + e_discourse_bound),
+                                        static_cast<size_t>(j + ec_discourse_bound)));
         }
         x.push_back(x_row);
         y.push_back(y_row);
@@ -351,20 +372,26 @@ void FuzzyLogic::plotFuzzyControlSurface(bool show) {
         plt::figure_size(1280, 768);
     }
     // elevation=20, azimuth=45
-    plt::plot_surface(x, y, z, {{"linewidth", "2"}, {"antialiased", "True"}});
+    plt::plot_surface(x, y, z,
+                      {
+                          {  "linewidth",    "2"},
+                          {"antialiased", "True"}
+    });
     plt::xlabel("e");
     plt::ylabel("ec");
     plt::set_zlabel("u");
     plt::title("Fuzzy Control Surface");
     if (show) {
         plt::show();
-    } else {
+    }
+    else {
         plt::save("assets/fuzzy_control_surface.png");
     }
     plt::close();
 }
 
-void FuzzyLogic::plotControl(std::string filename_prefix, std::string filename_suffix, bool show) {
+void FuzzyLogic::plotControl(std::string filename_prefix, std::string filename_suffix, bool show)
+{
     size_t n = control_plot_.size();
     std::vector<double> x(n), y(n), w(n);
 
@@ -379,27 +406,29 @@ void FuzzyLogic::plotControl(std::string filename_prefix, std::string filename_s
         plt::figure_size(1280, 768);
     }
     plt::named_plot("Actual", x, y);
-    plt::named_plot("Target", x, w,"r--");
+    plt::named_plot("Target", x, w, "r--");
     plt::ylabel("value");
     plt::xlabel("times");
-    plt::xlim((size_t)0, n);
+    plt::xlim((size_t) 0, n);
     plt::title("Fuzzy Control Demo: Target and Actual");
     plt::legend();
     if (show) {
         plt::show();
-    } else {
-        plt::save("assets/" + filename_prefix + "fc_demo_target_and_actual" + filename_suffix + ".png");
+    }
+    else {
+        plt::save("assets/" + filename_prefix + "fc_demo_target_and_actual" + filename_suffix
+                  + ".png");
     }
     plt::close();
 }
 
-
-void FuzzyLogic::plotControlErr(std::string filename_prefix, std::string filename_suffix, bool show) {
+void FuzzyLogic::plotControlErr(std::string filename_prefix, std::string filename_suffix, bool show)
+{
     size_t n = control_err_plot_.size();
     std::vector<double> x(n), y1(n), y2(n), w(n, 0);
 
     for (size_t i = 0; i < n; i++) {
-        x.at(i)  = i;
+        x.at(i) = i;
         y1.at(i) = control_err_plot_.at(i).err;
         y2.at(i) = control_err_plot_.at(i).d_err;
     }
@@ -411,15 +440,16 @@ void FuzzyLogic::plotControlErr(std::string filename_prefix, std::string filenam
 
     plt::named_plot("Error", x, y1);
     plt::named_plot("DError", x, y2);
-    plt::plot(x, w,"r--");
+    plt::plot(x, w, "r--");
     plt::ylabel("value");
     plt::xlabel("times");
-    plt::xlim((size_t)0, n);
+    plt::xlim((size_t) 0, n);
     plt::title("Fuzzy Control Demo: Error and Derivative Error");
     plt::legend();
     if (show) {
         plt::show();
-    } else {
+    }
+    else {
         plt::save("assets/" + filename_prefix + "fc_demo_err_and_derr" + filename_suffix + ".png");
     }
     plt::close();
