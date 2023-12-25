@@ -20,7 +20,7 @@ void Fuzzification::init(const scalar bound, const bool reverse, const Membershi
     bound_ = bound;
     factor_ = static_cast<scalar>(membership_->getDiscourseSize() / 2) / bound_;
     if (reverse) {
-        factor_ = 1 / factor_;
+        factor_ = 1.0 / factor_;
     }
 
     state_ = FuzzyProcess::FuzzyInit;
@@ -116,12 +116,12 @@ void FuzzyLogic::rangeCheck(scalar &input, Membership *ptr)
 bool FuzzyLogic::controllerSwitchCheck()
 {
     if (control_.err > e->membership_->getMaximum() * switch_ratio_
-        || control_.err < -e->membership_->getMinimum() * switch_ratio_)
+        || control_.err < e->membership_->getMinimum() * switch_ratio_)
     {
         return true;
     }
     if (control_.d_err > ec->membership_->getMaximum() * switch_ratio_
-        || control_.d_err < -ec->membership_->getMinimum() * switch_ratio_)
+        || control_.d_err < ec->membership_->getMinimum() * switch_ratio_)
     {
         return true;
     }
