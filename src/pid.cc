@@ -16,7 +16,7 @@ void PController::setProportional(const scalar Kp)
     Kp_ = Kp;
 }
 
-scalar PController::getProportional(void) { return Kp_; }
+scalar PController::getProportional() { return Kp_; }
 
 PIDController::PIDController()
     : prev_err_(0), pid_(PID_t{0, 0, 0}), integral_prev_(0), integral_saturation_(0)
@@ -27,7 +27,10 @@ PIDController::~PIDController() {}
 
 scalar PIDController::algo(const scalar err)
 {
-    scalar proportional, integral, derivative, output;
+    scalar proportional;
+    scalar integral;
+    scalar derivative;
+    scalar output;
 
     // u_p  = P *e(k)
     proportional = pid_.Kp * err;
@@ -73,4 +76,4 @@ void PIDController::setPIDParams(const PID_t pid)
     }
 }
 
-void PIDController::clearIntegralPrev(void) { integral_prev_ = 0.0; }
+void PIDController::clearIntegralPrev() { integral_prev_ = 0.0; }

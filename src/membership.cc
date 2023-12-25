@@ -163,7 +163,7 @@ scalar Membership::trapezoid(scalar x, scalar vertexA, scalar vertexB, scalar ve
         if (vertexA == -fc::inf) {
             return height_ * 1.0;
         }
-        return height_ * Operation::min(scalar(1.0), (x - vertexA) / (vertexB - vertexA));
+        return height_ * Operation::min(static_cast<scalar>(1.0), (x - vertexA) / (vertexB - vertexA));
     }
 
     if (Operation::isLessThan(x, vertexC)) {
@@ -186,8 +186,9 @@ scalar Membership::trapezoid(scalar x, scalar vertexA, scalar vertexB, scalar ve
 
 scalar Membership::gaussian(scalar x, scalar mean, scalar standardDeviation) const
 {
-    if (Operation::isNaN(x))
+    if (Operation::isNaN(x)) {
         return fc::nan;
+    }
 
     return height_
            * std::exp((-(x - mean) * (x - mean)) / (2.0 * standardDeviation * standardDeviation));
@@ -197,21 +198,21 @@ void Membership::setHeight(scalar height) { height_ = height; }
 
 scalar Membership::getHeight() const { return height_; }
 
-size_t Membership::getDiscourseSize(void) { return discourse_size_; }
+size_t Membership::getDiscourseSize() { return discourse_size_; }
 
-const std::vector<scalar> Membership::getParamSet(size_t discourse_id)
+std::vector<scalar> Membership::getParamSet(size_t discourse_id)
 {
     return params_.at(discourse_id);
 }
 
-const Range Membership::getRange(size_t discourse_id) { return params_range_.at(discourse_id); }
+Range Membership::getRange(size_t discourse_id) { return params_range_.at(discourse_id); }
 
-MembershipType Membership::getType(void) { return type_; }
+MembershipType Membership::getType() { return type_; }
 
-const std::string &Membership::getName(void) { return name_; }
+const std::string &Membership::getName() { return name_; }
 
-scalar Membership::getMinimum(void) { return minimum_; }
+scalar Membership::getMinimum() { return minimum_; }
 
-scalar Membership::getMaximum(void) { return maximum_; }
+scalar Membership::getMaximum() { return maximum_; }
 
 } // namespace fc

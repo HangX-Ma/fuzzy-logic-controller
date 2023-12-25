@@ -40,8 +40,8 @@ public:
 
     scalar getHeight() const;
     size_t getDiscourseSize();
-    const std::vector<scalar> getParamSet(size_t discourse_id);
-    const Range getRange(size_t discourse_id);
+    std::vector<scalar> getParamSet(size_t discourse_id);
+    Range getRange(size_t discourse_id);
     MembershipType getType();
     const std::string &getName();
     scalar getMinimum();

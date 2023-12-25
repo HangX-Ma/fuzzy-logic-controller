@@ -97,9 +97,9 @@ public:
 
 #if FC_USE_MATPLOTLIB
     void plotFuzzyControlSurface(bool show = false);
-    void plotControl(std::string filename_prefix = "", std::string filename_suffix = "",
+    void plotControl(const std::string &filename_prefix = "", const std::string &filename_suffix = "",
                      bool show = false);
-    void plotControlErr(std::string filename_prefix = "", std::string filename_suffix = "",
+    void plotControlErr(const std::string &filename_prefix = "", const std::string &filename_suffix = "",
                         bool show = false);
 
     std::vector<Control_t> control_plot_;

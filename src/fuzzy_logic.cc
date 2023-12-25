@@ -73,11 +73,11 @@ void Fuzzification::setBound(scalar bound)
     bound_ = bound;
 }
 
-const std::string &Fuzzification::getName(void) { return name_; }
+const std::string &Fuzzification::getName() { return name_; }
 
-scalar Fuzzification::getFactor(void) { return factor_; }
+scalar Fuzzification::getFactor() { return factor_; }
 
-scalar Fuzzification::getBound(void) { return bound_; }
+scalar Fuzzification::getBound() { return bound_; }
 
 //? FuzzyLogic
 FuzzyLogic::FuzzyLogic(int resolution) : resolution_(resolution), control_(Err_t{0, 0, 0})
@@ -96,12 +96,10 @@ scalar sign(scalar x)
     if (x >= eps) {
         return 1.0;
     }
-    else if (x <= -eps) {
+    if (x <= -eps) {
         return -1.0;
     }
-    else {
-        return 0.0;
-    }
+    return 0.0;
 }
 
 void FuzzyLogic::rangeCheck(scalar &input, Membership *ptr)
@@ -115,7 +113,7 @@ void FuzzyLogic::rangeCheck(scalar &input, Membership *ptr)
     }
 }
 
-bool FuzzyLogic::controllerSwitchCheck(void)
+bool FuzzyLogic::controllerSwitchCheck()
 {
     if (control_.err > e->membership_->getMaximum() * switch_ratio_
         || control_.err < -e->membership_->getMinimum() * switch_ratio_)
@@ -134,9 +132,12 @@ bool FuzzyLogic::controllerSwitchCheck(void)
 static size_t iter = 0;
 scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar output_exp_scale)
 {
-    scalar output, defuzzify_output, err, d_err;
+    scalar output;
+    scalar defuzzify_output;
+    scalar err;
+    scalar d_err;
 
-    // TODO: input may out of max bound, acquiring limitation for scaling.
+    // DONE(HangX-Ma): input may out of max bound, acquiring limitation for scaling.
     // calculate the basic control params and normalize them to discourse range
     err = input.target - input.actual;
     d_err = err - control_.prev_err;
@@ -173,10 +174,12 @@ scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar out
         }
     }
 
-    if (output >= u->getBound())
+    if (output >= u->getBound()) {
         output = u->getBound();
-    if (output <= -u->getBound())
+    }
+    if (output <= -u->getBound()) {
         output = -u->getBound();
+    }
 
     // control info
     if (iter == 0) {
@@ -193,7 +196,7 @@ scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar out
     return output;
 }
 
-void FuzzyLogic::inference(void)
+void FuzzyLogic::inference()
 {
     Inference_t inference_set;
 
@@ -226,8 +229,10 @@ void FuzzyLogic::inference(void)
 
 CentroidPair FuzzyLogic::centroid(size_t rule_id, scalar truncation_premise)
 {
-    scalar x, y;
-    scalar x_centroid = 0, area = 0;
+    scalar x;
+    scalar y;
+    scalar x_centroid = 0;
+    scalar area = 0;
 
     const auto params = u->membership_->getParamSet(rule_id);
     const auto [minimum, maximum] = u->membership_->getRange(rule_id);
@@ -243,10 +248,11 @@ CentroidPair FuzzyLogic::centroid(size_t rule_id, scalar truncation_premise)
     return CentroidPair{x_centroid, area};
 }
 
-scalar FuzzyLogic::defuzzify(void)
+scalar FuzzyLogic::defuzzify()
 {
     // centroid method
-    scalar num = 0, den = 0;
+    scalar num = 0;
+    scalar den = 0;
     for (const auto &[rule, weight] : inference_map_) {
         const size_t rule_id = static_cast<size_t>(rule) + u->membership_->getDiscourseSize() / 2;
         dbgmsgln("[defuzzify] rule id %d, Weight %.4f", rule, weight);
@@ -271,7 +277,7 @@ void FuzzyLogic::setFuzzyRules(const Matrix &rule_table)
     rule_table_ = rule_table;
 }
 
-void FuzzyLogic::getInfo(void)
+void FuzzyLogic::getInfo()
 {
     std::cout << std::endl;
     infomsgln("Fuzzy logic controller info:");
@@ -296,7 +302,9 @@ namespace plt = matplotlibcpp;
 void Fuzzification::plotMembershipFunctions(bool show)
 {
     int n = 500;
-    std::vector<double> x(n), y(n), w(n, 0);
+    std::vector<double> x(n);
+    std::vector<double> y(n);
+    std::vector<double> w(n, 0);
 
     // determine the figure config
     if (!show) {
@@ -350,12 +358,16 @@ void Fuzzification::plotMembershipFunctions(bool show)
 
 void FuzzyLogic::plotFuzzyControlSurface(bool show)
 {
-    std::vector<std::vector<double>> x, y, z;
+    std::vector<std::vector<double>> x;
+    std::vector<std::vector<double>> y;
+    std::vector<std::vector<double>> z;
     double e_discourse_bound = static_cast<double>(e->membership_->getDiscourseSize() / 2);
     double ec_discourse_bound = static_cast<double>(ec->membership_->getDiscourseSize() / 2);
 
     for (double i = -e_discourse_bound; i <= e_discourse_bound; i++) {
-        std::vector<double> x_row, y_row, z_row;
+        std::vector<double> x_row;
+        std::vector<double> y_row;
+        std::vector<double> z_row;
         for (double j = -ec_discourse_bound; j <= ec_discourse_bound; j++) {
             x_row.push_back(i);
             y_row.push_back(j);
@@ -390,10 +402,12 @@ void FuzzyLogic::plotFuzzyControlSurface(bool show)
     plt::close();
 }
 
-void FuzzyLogic::plotControl(std::string filename_prefix, std::string filename_suffix, bool show)
+void FuzzyLogic::plotControl(const std::string &filename_prefix, const std::string &filename_suffix, bool show)
 {
     size_t n = control_plot_.size();
-    std::vector<double> x(n), y(n), w(n);
+    std::vector<double> x(n);
+    std::vector<double> y(n);
+    std::vector<double> w(n);
 
     for (size_t i = 0; i < n; i++) {
         x.at(i) = i;
@@ -409,7 +423,7 @@ void FuzzyLogic::plotControl(std::string filename_prefix, std::string filename_s
     plt::named_plot("Target", x, w, "r--");
     plt::ylabel("value");
     plt::xlabel("times");
-    plt::xlim((size_t) 0, n);
+    plt::xlim(static_cast<size_t>(0), n);
     plt::title("Fuzzy Control Demo: Target and Actual");
     plt::legend();
     if (show) {
@@ -422,10 +436,13 @@ void FuzzyLogic::plotControl(std::string filename_prefix, std::string filename_s
     plt::close();
 }
 
-void FuzzyLogic::plotControlErr(std::string filename_prefix, std::string filename_suffix, bool show)
+void FuzzyLogic::plotControlErr(const std::string &filename_prefix, const std::string &filename_suffix, bool show)
 {
     size_t n = control_err_plot_.size();
-    std::vector<double> x(n), y1(n), y2(n), w(n, 0);
+    std::vector<double> x(n);
+    std::vector<double> y1(n);
+    std::vector<double> y2(n);
+    std::vector<double> w(n, 0);
 
     for (size_t i = 0; i < n; i++) {
         x.at(i) = i;
@@ -443,7 +460,7 @@ void FuzzyLogic::plotControlErr(std::string filename_prefix, std::string filenam
     plt::plot(x, w, "r--");
     plt::ylabel("value");
     plt::xlabel("times");
-    plt::xlim((size_t) 0, n);
+    plt::xlim(static_cast<size_t>(0), n);
     plt::title("Fuzzy Control Demo: Error and Derivative Error");
     plt::legend();
     if (show) {
