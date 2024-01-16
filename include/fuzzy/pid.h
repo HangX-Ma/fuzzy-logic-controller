@@ -2,15 +2,15 @@
  * @file pid.h
  * @author HangX-Ma (contour.9x@gmail.com)
  * @brief Fuzzy logic
- * @version 0.1
+ * @version 0.2
  * @date 2023-08-28
+ * @date 2024-01-16
  */
 
-#ifndef __FC_FUZZY_PID__H__
-#define __FC_FUZZY_PID__H__
+#ifndef FC_PID_H
+#define FC_PID_H
 
-#include "fuzzy/base.h"
-#include "fuzzy/operation.h"
+#include "fuzzy/utils.h"
 
 namespace fc
 {
@@ -18,16 +18,13 @@ namespace fc
 class PController
 {
 public:
-    PController();
-    ~PController();
-
     scalar algo(scalar err);
 
     void setProportional(scalar Kp);
     scalar getProportional();
 
 private:
-    scalar Kp_;
+    scalar Kp_{0.0};
 };
 
 using PID_t = struct PID
@@ -46,16 +43,16 @@ public:
     scalar algo(scalar err);
 
     void setPIDParams(PID_t pid);
-    void clearIntegralPrev();
-
-    scalar prev_err_;
+    void clearSaturation() { integral_prev_ = 0.0; }
+    scalar getPrevErr() const { return prev_err_; }
 
 private:
-    PID_t pid_;
-    scalar integral_prev_;
-    scalar integral_saturation_;
+    PID_t pid_{0.0, 0.0, 0.0};
+    scalar prev_err_{0};
+    scalar integral_prev_{0.0};
+    scalar integral_saturation_{0.0};
 };
 
 } // namespace fc
 
-#endif //!__FC_FUZZY_PID__H__
+#endif

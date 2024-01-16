@@ -1,5 +1,9 @@
-#include "fmt/core.h"
+#include <spdlog/fmt/fmt.h>
+#include <spdlog/spdlog.h>
+
+#include "fuzzy/operation.h"
 #include "fuzzy/membership.h"
+
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -82,7 +86,7 @@ void Membership::setMembershipParam(const MembershipType type, const scalar inpu
     std::vector<scalar> param_set;
 
     if (params_num % size != 0) {
-        warnmsgln("[membership error] membership type: %d, param number: %d", size, params_num);
+        spdlog::error("[membership error] membership type: %d, param number: %d", size, params_num);
         throw std::length_error("[membership error] parameters number mismatches");
     }
 
@@ -95,20 +99,14 @@ void Membership::setMembershipParam(const MembershipType type, const scalar inpu
         param_set.emplace_back(input_params[idx - 1]);
         // store the params set by group according to membership function required params size
         if (idx % size == 0) {
-            std::string s
-                = fmt::format("[membership {}] id:{}, (", this->getName().data(), idx / size);
+            std::string s = fmt::format("[membership {:>2s}] id{}: (", this->getName(), idx / size);
             for (auto [i, elem] = std::tuple{1, param_set.begin()}; elem != param_set.end();
                  i++, elem++)
             {
-                s.append(fmt::format("{:.2f}", *elem));
-                if (i == size) {
-                    s.append(")\n");
-                }
-                else {
-                    s.append(", ");
-                }
+                s.append(fmt::format("{: .1f}", *elem));
+                s.append(i == size ? ")" : ", ");
             }
-            dbgmsg("%s", s.c_str());
+            spdlog::debug("{}", s);
             params_.emplace_back(param_set);
             params_range_.emplace_back(calculateRange(type, param_set));
             param_set.clear();
@@ -163,7 +161,8 @@ scalar Membership::trapezoid(scalar x, scalar vertexA, scalar vertexB, scalar ve
         if (vertexA == -fc::inf) {
             return height_ * 1.0;
         }
-        return height_ * Operation::min(static_cast<scalar>(1.0), (x - vertexA) / (vertexB - vertexA));
+        return height_
+               * Operation::min(static_cast<scalar>(1.0), (x - vertexA) / (vertexB - vertexA));
     }
 
     if (Operation::isLessThan(x, vertexC)) {
@@ -198,21 +197,21 @@ void Membership::setHeight(scalar height) { height_ = height; }
 
 scalar Membership::getHeight() const { return height_; }
 
-size_t Membership::getDiscourseSize() { return discourse_size_; }
+size_t Membership::getDiscourseSize() const { return discourse_size_; }
 
 std::vector<scalar> Membership::getParamSet(size_t discourse_id)
 {
     return params_.at(discourse_id);
 }
 
-Range Membership::getRange(size_t discourse_id) { return params_range_.at(discourse_id); }
+Range Membership::getRange(size_t discourse_id) const { return params_range_.at(discourse_id); }
 
-MembershipType Membership::getType() { return type_; }
+MembershipType Membership::getType() const { return type_; }
 
-const std::string &Membership::getName() { return name_; }
+const std::string &Membership::getName() const { return name_; }
 
-scalar Membership::getMinimum() { return minimum_; }
+scalar Membership::getMinimum() const { return minimum_; }
 
-scalar Membership::getMaximum() { return maximum_; }
+scalar Membership::getMaximum() const { return maximum_; }
 
 } // namespace fc

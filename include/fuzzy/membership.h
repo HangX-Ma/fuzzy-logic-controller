@@ -2,16 +2,16 @@
  * @file membership.h
  * @author HangX-Ma (contour.9x@gmail.com)
  * @brief membership functions class
- * @version 0.1
+ * @version 0.3
  * @date 2022-07-15
  * @date 2023-08-22
+ * @date 2024-01-16
  */
 
-#ifndef __FC_FUZZY_MEMBERSHIP__H__
-#define __FC_FUZZY_MEMBERSHIP__H__
+#ifndef FC_MEMBERSHIP_H
+#define FC_MEMBERSHIP_H
 
-#include "fuzzy/base.h"
-#include "fuzzy/operation.h"
+#include "fuzzy/utils.h"
 #include <optional>
 
 namespace fc
@@ -39,13 +39,13 @@ public:
     void setHeight(scalar height);
 
     scalar getHeight() const;
-    size_t getDiscourseSize();
+    size_t getDiscourseSize() const;
     std::vector<scalar> getParamSet(size_t discourse_id);
-    Range getRange(size_t discourse_id);
-    MembershipType getType();
-    const std::string &getName();
-    scalar getMinimum();
-    scalar getMaximum();
+    Range getRange(size_t discourse_id) const;
+    MembershipType getType() const;
+    const std::string &getName() const;
+    scalar getMinimum() const;
+    scalar getMaximum() const;
 
 private:
     /**
@@ -113,6 +113,7 @@ private:
 
     Range calculateRange(MembershipType type, const std::vector<scalar> &param_set);
 
+private:
     scalar height_;
     std::string name_;
     MembershipType type_;
@@ -125,4 +126,4 @@ private:
 
 } // namespace fc
 
-#endif //!__FC_FUZZY_MEMBERSHIP__H__
+#endif

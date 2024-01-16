@@ -1,29 +1,21 @@
 #include "fuzzy/pid.h"
+#include <spdlog/spdlog.h>
 
-using namespace fc;
-
-PController::PController() : Kp_(0) {}
-PController::~PController() {}
+namespace fc
+{
 
 scalar PController::algo(const scalar err) { return Kp_ * err; }
 
 void PController::setProportional(const scalar Kp)
 {
     if (Kp < -fc::eps) {
-        warnmsgln("[PController] input Kp is negative and it will be set to zero");
+        spdlog::warn("[PController] input Kp is negative and it will be set to zero");
         Kp_ = 0.0;
     }
     Kp_ = Kp;
 }
 
 scalar PController::getProportional() { return Kp_; }
-
-PIDController::PIDController()
-    : prev_err_(0), pid_(PID_t{0, 0, 0}), integral_prev_(0), integral_saturation_(0)
-{
-}
-
-PIDController::~PIDController() {}
 
 scalar PIDController::algo(const scalar err)
 {
@@ -61,19 +53,19 @@ scalar PIDController::algo(const scalar err)
 void PIDController::setPIDParams(const PID_t pid)
 {
     if (pid.Kp < -fc::eps) {
-        warnmsgln("[PIDController] input Kp is negative and it will be set to zero");
+        spdlog::warn("[PIDController] input Kp is negative and it will be set to zero");
         pid_.Kp = 0.0;
     }
 
     if (pid.Ki < -fc::eps) {
-        warnmsgln("[PIDController] input Ki is negative and it will be set to zero");
+        spdlog::warn("[PIDController] input Ki is negative and it will be set to zero");
         pid_.Ki = 0.0;
     }
 
     if (pid.Kd < -fc::eps) {
-        warnmsgln("[PIDController] input Kd is negative and it will be set to zero");
+        spdlog::warn("[PIDController] input Kd is negative and it will be set to zero");
         pid_.Kd = 0.0;
     }
 }
 
-void PIDController::clearIntegralPrev() { integral_prev_ = 0.0; }
+} // namespace fc

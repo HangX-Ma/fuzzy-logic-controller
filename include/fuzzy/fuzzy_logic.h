@@ -2,74 +2,24 @@
  * @file fuzzy_logic.h
  * @author HangX-Ma (contour.9x@gmail.com)
  * @brief Fuzzy logic
- * @version 0.2
+ * @version 0.3
  * @date 2022-07-15
  * @date 2023-08-22
+ * @date 2024-01-16
  */
 
-#ifndef __FC_FUZZY_CONTROL__H__
-#define __FC_FUZZY_CONTROL__H__
+#ifndef FC_FUZZY_LOGIC_H
+#define FC_FUZZY_LOGIC_H
 
-#include "fuzzy/base.h"
-#include "fuzzy/operation.h"
-#include "fuzzy/membership.h"
+#include "fuzzy/utils.h"
 #include "fuzzy/pid.h"
-#include "Eigen/Eigen"
 
+#include <spdlog/spdlog.h>
 #include <unordered_map>
 #include <memory>
 
 namespace fc
 {
-
-using PremisePair = std::pair<scalar, size_t>;
-using CentroidPair = std::pair<scalar, scalar>;
-
-using Inference_t = struct Inference
-{
-    scalar weight;
-    int rule;
-};
-
-enum class FuzzyProcess
-{
-    FuzzyUninit,
-    FuzzyInit,
-};
-
-//? Note: e/ec factor=discourse_size/bound, u factor=bound/discourse_size
-class Fuzzification
-{
-public:
-    explicit Fuzzification(std::string name = "", scalar bound = 0.0);
-    ~Fuzzification();
-
-    void init(scalar bound, bool reverse, MembershipType type, const scalar input_params[],
-              uint8_t params_num);
-    void fuzzify(scalar input);
-
-    void setFactor(scalar ratio, bool reverse);
-    void setBound(scalar bound);
-
-    const std::string &getName();
-    scalar getFactor();
-    scalar getBound();
-
-#if FC_USE_MATPLOTLIB
-    void plotMembershipFunctions(bool show = false);
-#endif
-
-    std::unique_ptr<Membership> membership_;
-    std::vector<PremisePair> premise_pairs_;
-
-protected:
-    std::string name_;
-    FuzzyProcess state_;
-
-private:
-    scalar factor_; // quantifying/scaling factor
-    scalar bound_;  // upper bound
-};
 
 using Err_t = struct Err
 {
@@ -83,6 +33,9 @@ using Control_t = struct Control
     scalar target;
     scalar actual;
 };
+
+class Fuzzification;
+class Membership;
 
 class FuzzyLogic
 {
@@ -98,28 +51,31 @@ public:
 
 #if FC_USE_MATPLOTLIB
     void plotFuzzyControlSurface(bool show = false);
-    void plotControl(const std::string &filename_prefix = "", const std::string &filename_suffix = "",
-                     bool show = false);
-    void plotControlErr(const std::string &filename_prefix = "", const std::string &filename_suffix = "",
-                        bool show = false);
-
-    std::vector<Control_t> control_plot_;
-    std::vector<Err_t> control_err_plot_;
+    void plotControl(const std::string &filename_prefix = "",
+                     const std::string &filename_suffix = "", bool show = false);
+    void plotControlErr(const std::string &filename_prefix = "",
+                        const std::string &filename_suffix = "", bool show = false);
 #endif
 
     std::unique_ptr<Fuzzification> e;
     std::unique_ptr<Fuzzification> ec;
     std::unique_ptr<Fuzzification> u;
 
-    std::unique_ptr<PController> p_ctrl_;
+    std::unique_ptr<PController> p_ctrl;
 
 private:
     void inference();
     scalar defuzzify();
     CentroidPair centroid(size_t rule_id, scalar truncation_premise);
-    void rangeCheck(scalar &input, Membership *ptr);
+
+    void rangeCheck(scalar &input, Membership *membership);
     bool controllerSwitchCheck(scalar err, scalar d_err);
 
+private:
+    std::vector<Control_t> control_plot_;
+    std::vector<Err_t> control_err_plot_;
+
+private:
     int resolution_;
     Matrix rule_table_;
     std::unordered_map<int, scalar> inference_map_;
@@ -131,4 +87,4 @@ private:
 
 } // namespace fc
 
-#endif //! __FC_FUZZY_CONTROL__H__
+#endif

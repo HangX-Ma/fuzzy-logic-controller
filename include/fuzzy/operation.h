@@ -2,18 +2,19 @@
  * @file operation.h
  * @author HangX-Ma (contour.9x@gmail.com)
  * @brief Operation class for simple calculation usage
- * @version 0.1
+ * @version 0.3
  * @date 2022-07-14
  * @date 2023-08-22
+ * @date 2024-01-16
  */
 
-#ifndef __FC_OPERATION__H__
-#define __FC_OPERATION__H__
-
-#include "fuzzy/base.h"
+#ifndef FC_OPERATION_H
+#define FC_OPERATION_H
 
 #include <sstream>
 #include <vector>
+
+#include "fuzzy/utils.h"
 
 namespace fc
 {
@@ -155,4 +156,4 @@ inline scalar Operation::toScalar(const std::string &x)
 
 } // namespace fc
 
-#endif //!__FC_OPERATION__H__
+#endif

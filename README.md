@@ -20,6 +20,24 @@ You can use _**P-FC**_ controller that combines _proportional controller_ with _
 - matplotlib-cpp
 - C++17, CMake 3.23
 
+## Prerequisite
+
+- Install `spdlog` development components.
+
+    ```bash
+    sudo apt-get install libspdlog-dev
+    ```
+
+- Install `Eigen3` to acquire linear algebra calculation ability.
+
+    ```bash
+    wget -O Eigen.zip https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
+    unzip Eigen.zip # it has unzipped into the library called eigen-3.4.0
+    cd eigen-3.4.0
+    cmake -B build
+    sudo cmake --build build --target install # install Eigen3
+    ```
+
 ## Schedule
 
 - [x] Rewrite the core logic and fix the essential fuzzy logic problems.
@@ -158,6 +176,7 @@ Fuzzy logic controller is composed of the following four elements:
 - [Fuzzy Control](share/FCbook.pdf), Kevin M. Passino, Stephen Yurkovich, Department of Electrical Engineering, The Ohio State University
 - [fuzzylite/fuzzylite](https://github.com/fuzzylite/fuzzylite)
 - [shuoyueqishi/fuzzy-controller](https://github.com/shuoyueqishi/fuzzy-controller)
+- [{fmt} Formatting & Printing Library](https://hackingcpp.com/cpp/libs/fmt.html)
 
 ## License
 

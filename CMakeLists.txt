@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
 
 project(fuzzy LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -49,10 +49,6 @@ option(CRISP_BUILD_SHARED "Build shared library" OFF)
 add_definitions(
     "-DFC_USE_DOUBLE"
     "-DFC_USE_MATPLOTLIB"
-
-    # "-DFC_USE_DEBUG_MSG"
-    "-DFC_USE_INFO_MSG"
-    "-DFC_USE_WARN_MSG"
 )
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -71,7 +67,11 @@ else()
     add_library(fuzzy STATIC ${FUZZY_SOURCES} ${FUZZY_HEADERS})
 endif()
 
-target_link_libraries(fuzzy matplotlib_cpp fmt-header-only Eigen3::Eigen)
+find_package(spdlog REQUIRED)
+find_package(Eigen3 3.4 REQUIRED NO_MODULE)
+message(STATUS "Packaged spdlog and Eigen3 library has been found")
+
+target_link_libraries(fuzzy PRIVATE matplotlib_cpp spdlog::spdlog_header_only Eigen3::Eigen)
 target_include_directories(
     fuzzy PUBLIC
     ${CMAKE_SOURCE_DIR}/include

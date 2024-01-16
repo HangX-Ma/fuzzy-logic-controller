@@ -1,6 +1,12 @@
 #define _USE_MATH_DEFINES
+
 #include "fuzzy/fuzzy_def.h"
+#include "fuzzy/membership.h"
+#include "fuzzy/fuzzification.h"
 #include "fuzzy/fuzzy_logic.h"
+
+#include <spdlog/spdlog.h>
+
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -9,10 +15,14 @@ constexpr const size_t TRIANGLE_PARAMS_NUM = 21;
 constexpr const size_t TRAPEZOID_PARAMS_NUM = 28;
 constexpr const size_t GAUSSIAN_PARAMS_NUM = 14;
 
-int main (int argc,char *argv[]) {
+int main(int argc, char *argv[])
+{
     FC_UNUSED(argc);
     FC_UNUSED(argv);
 
+    spdlog::set_level(spdlog::level::info);
+
+    // clang-format off
     // membership triangle params
     fc::scalar triangle_params[TRIANGLE_PARAMS_NUM] = {
         -3, -3, -2,
@@ -53,8 +63,8 @@ int main (int argc,char *argv[]) {
     fuzzy.ec->init(30, false, fc::MembershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
     fuzzy.u->init(15, true, fc::MembershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
 
-    size_t rows = fuzzy.e->membership_->getDiscourseSize();
-    size_t cols = fuzzy.ec->membership_->getDiscourseSize();
+    size_t rows = fuzzy.e->membership()->getDiscourseSize();
+    size_t cols = fuzzy.ec->membership()->getDiscourseSize();
 
     fc::Matrix rule_table;
     rule_table.resize(rows, cols);
@@ -73,7 +83,7 @@ int main (int argc,char *argv[]) {
     fuzzy.ec->plotMembershipFunctions();
     fuzzy.u->plotMembershipFunctions();
 
-    fuzzy.p_ctrl_->setProportional(2.0);
+    fuzzy.p_ctrl->setProportional(2.0);
     fuzzy.setProportionalURatio(3.0);
 
     // DON'T CHANGE FACTOR RATIO OUT OF RANGE!

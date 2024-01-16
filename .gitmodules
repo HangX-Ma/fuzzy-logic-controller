@@ -1,7 +1,0 @@
-[submodule "library/eigen3"]
-	path = library/eigen3
-	url = https://gitlab.com/libeigen/eigen.git
-	branch = 3.4
-[submodule "library/fmt"]
-	path = library/fmt
-	url = https://github.com/fmtlib/fmt.git
