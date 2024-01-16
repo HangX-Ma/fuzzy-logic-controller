@@ -38,7 +38,7 @@ void Fuzzification::fuzzify(scalar input)
         // premise.value(), idx, input);
         if (premise != std::nullopt && fabs(premise.value()) >= fc::eps) {
             premise_pairs_.emplace_back(std::make_pair(premise.value(), idx));
-            dbgmsgln("[fuzzify] %s - input: %.3f premise: %.3f, discourse ID: %llu",
+            dbgmsgln("[fuzzify] %s - input: %.3f premise: %.3f, discourse ID: %zu",
                      getName().c_str(), input, premise.value(), idx);
         }
     }
@@ -113,15 +113,15 @@ void FuzzyLogic::rangeCheck(scalar &input, Membership *ptr)
     }
 }
 
-bool FuzzyLogic::controllerSwitchCheck()
+bool FuzzyLogic::controllerSwitchCheck(scalar err, scalar d_err)
 {
-    if (control_.err > e->membership_->getMaximum() * switch_ratio_
-        || control_.err < e->membership_->getMinimum() * switch_ratio_)
+    if (err > e->getBound() * switch_ratio_
+        || err < -e->getBound() * switch_ratio_)
     {
         return true;
     }
-    if (control_.d_err > ec->membership_->getMaximum() * switch_ratio_
-        || control_.d_err < ec->membership_->getMinimum() * switch_ratio_)
+    if (d_err > ec->getBound() * switch_ratio_
+        || d_err < -ec->getBound() * switch_ratio_)
     {
         return true;
     }
@@ -147,8 +147,18 @@ scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar out
         = ec->getFactor() * (fabs(d_err) > ec->getBound() ? sign(err) * ec->getBound() : d_err);
     control_.prev_err = fabs(err) > e->getBound() ? sign(err) * e->getBound() : err;
 
-    if (use_p_ctrl && controllerSwitchCheck()) {
-        output = p_ctrl_->algo(control_.err) * u->getFactor();
+    if (use_p_ctrl && controllerSwitchCheck(err, d_err)) {
+        output = p_ctrl_->algo(err);
+        if (output >= u->getBound() * proportional_u_ratio_) {
+            output = u->getBound() * proportional_u_ratio_;
+        }
+        if (output <= -u->getBound() * proportional_u_ratio_) {
+            output = -u->getBound() * proportional_u_ratio_;
+        }
+
+        dbgmsgln("#### [Proportional Control] ####");
+        dbgmsgln("Times    Target    Actual    Error");
+        dbgmsgln("%04zu     %06.2f    %06.2f    %06.3f", iter, input.target, input.actual, err);
     }
     else {
         // ensure the factor will not make e or ec out of range
@@ -172,25 +182,24 @@ scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar out
         else {
             output = defuzzify_output * u->getFactor();
         }
-    }
 
-    if (output >= u->getBound()) {
-        output = u->getBound();
-    }
-    if (output <= -u->getBound()) {
-        output = -u->getBound();
-    }
-
-    // control info
-    if (iter == 0) {
+        if (output >= u->getBound()) {
+            output = u->getBound();
+        }
+        if (output <= -u->getBound()) {
+            output = -u->getBound();
+        }
+        // control info
+        dbgmsgln("#### [Fuzzy Control] ####");
         dbgmsgln("Times    Target    Actual    Error    DError    PError");
+        dbgmsgln("%04zu     %06.2f    %06.2f    %06.3f   %06.3f    %06.3f", iter, input.target,
+                input.actual, control_.err, control_.d_err, control_.prev_err);
     }
-    dbgmsgln("%04llu     %06.2f    %06.2f    %06.3f   %06.3f    %06.3f", iter++, input.target,
-             input.actual, control_.err, control_.d_err, control_.prev_err);
+    iter += 1;
 
 #if FC_USE_MATPLOTLIB
     control_plot_.emplace_back(Control_t{input.target, input.actual});
-    control_err_plot_.emplace_back(control_);
+    control_err_plot_.emplace_back(Err_t{err, -1/*unused*/, d_err});
 #endif
 
     return output;
@@ -213,7 +222,7 @@ void FuzzyLogic::inference()
             inference_set.weight = e_premise * ec_premise;
             inference_set.rule = static_cast<int>(rule_table_(
                 e_discourse_size - 1 - e_discourse_id, ec_discourse_size - 1 - ec_discourse_id));
-            dbgmsgln("[Inference] rule %llu => RuleTable(%llu, %llu)=%d, Weight=%.4f",
+            dbgmsgln("[Inference] rule %zu => RuleTable(%lu, %lu)=%d, Weight=%.4f",
                      (i * rows + j), e_discourse_id, ec_discourse_id, inference_set.rule,
                      inference_set.weight);
             // If the rule overlaps the map stored, we need to keep the higher weight one.

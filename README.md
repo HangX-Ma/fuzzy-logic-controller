@@ -4,6 +4,8 @@ Realize the basic function of fuzzy logic controller. User can select _Triangle_
 
 You can use _**P-FC**_ controller that combines _proportional controller_ with _fuzzy controller_. This will enhance the system response time and accuracy when input _error_ or _error rate_ high.
 
+> **NOTE:** Fuzzy control can make control more concise, but also make it slow. I use forward feedback in demo to increase the control speed!
+
 <div align="center">
     <img src="assets/fzc_design.svg" alt="Fuzzy logic controller design, HangX-Ma" width=600 />
     <br>

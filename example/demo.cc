@@ -47,11 +47,11 @@ int main (int argc,char *argv[]) {
     FC_UNUSED(gaussian_params);
 
     fc::FuzzyLogic fuzzy;
-    fuzzy.e->init(100, false, fc::MembershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
+    fuzzy.e->init(60, false, fc::MembershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
     // fuzzy.ec->init(200, false, fc::MembershipType::Trapezoid, trapezoid_params, TRAPEZOID_PARAMS_NUM);
     // fuzzy.u->init(30, true, fc::MembershipType::Gaussian, gaussian_params, GAUSSIAN_PARAMS_NUM);
-    fuzzy.ec->init(50, false, fc::MembershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
-    fuzzy.u->init(60, true, fc::MembershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
+    fuzzy.ec->init(30, false, fc::MembershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
+    fuzzy.u->init(15, true, fc::MembershipType::Triangle, triangle_params, TRIANGLE_PARAMS_NUM);
 
     size_t rows = fuzzy.e->membership_->getDiscourseSize();
     size_t cols = fuzzy.ec->membership_->getDiscourseSize();
@@ -73,19 +73,20 @@ int main (int argc,char *argv[]) {
     fuzzy.ec->plotMembershipFunctions();
     fuzzy.u->plotMembershipFunctions();
 
-    fuzzy.p_ctrl_->setProportional(4.2);
+    fuzzy.p_ctrl_->setProportional(2.0);
+    fuzzy.setProportionalURatio(3.0);
 
     // DON'T CHANGE FACTOR RATIO OUT OF RANGE!
-    fuzzy.u->setFactor(2.5, true);
-    fuzzy.setSwitchRatio(0.5);
+    // fuzzy.u->setFactor(2.5, true);
+    fuzzy.setSwitchRatio(1.5);
     fuzzy.getInfo();
 
 #define CONTROL_TEST_CONSTANT_TARGET    (0)
 #define CONTROL_TEST_SINE_TARGET        (1)
-#define CONTROL_TEST_USE_P_CONTROLLER   (1)
+#define CONTROL_TEST_USE_P_CONTROLLER   (0)
 #if CONTROL_TEST_CONSTANT_TARGET
     fc::Control_t control;
-    control.target = 60.0;
+    control.target = 300.0;
     control.actual = 0.0;
 
     const int times = 300;
@@ -97,6 +98,10 @@ int main (int argc,char *argv[]) {
         } else if (i == 200) {
             control.target = 40.0;
         }
+
+        // use forward feedback control
+        control.actual += (control.target - control.actual) * 0.5;
+
         if (CONTROL_TEST_USE_P_CONTROLLER) {
             control.actual += fuzzy.algo(control, true, /*exp^*/0.2);
         } else {
@@ -129,6 +134,10 @@ int main (int argc,char *argv[]) {
         } else if (i <= 5 * 360) {
             control.target = 25 * sin(i * M_PI / 720);
         }
+
+        // use forward feedback control
+        control.actual += (control.target - control.actual) * 0.5;
+
         if (CONTROL_TEST_USE_P_CONTROLLER) {
             control.actual += fuzzy.algo(control, true, /*exp^*/0.2);
         } else {

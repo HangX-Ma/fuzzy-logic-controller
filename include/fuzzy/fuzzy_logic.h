@@ -93,6 +93,7 @@ public:
     scalar algo(Control_t input, bool use_p_ctrl = false, scalar output_exp_scale = 0.0);
     void setFuzzyRules(const Matrix &rule_table);
     void setSwitchRatio(double switch_ratio) { switch_ratio_ = switch_ratio; }
+    void setProportionalURatio(double ratio) { proportional_u_ratio_ = ratio; }
     void getInfo();
 
 #if FC_USE_MATPLOTLIB
@@ -117,14 +118,15 @@ private:
     scalar defuzzify();
     CentroidPair centroid(size_t rule_id, scalar truncation_premise);
     void rangeCheck(scalar &input, Membership *ptr);
-    bool controllerSwitchCheck();
+    bool controllerSwitchCheck(scalar err, scalar d_err);
 
     int resolution_;
     Matrix rule_table_;
     std::unordered_map<int, scalar> inference_map_;
 
     Err_t control_;
-    double switch_ratio_{0};
+    double switch_ratio_{1.0};
+    double proportional_u_ratio_{1.0};
 };
 
 } // namespace fc
