@@ -51,7 +51,6 @@ Compile the project after you download this repository. You can find the output 
 ```shell
 git clone https://github.com/HangX-Ma/fuzzy-logic-controller.git
 cd fuzzy-logic-controller
-git submodule update --init --recursive
 cmake -B build -S .
 cmake --build build
 # run the demo!
@@ -82,9 +81,6 @@ You can annotate these definitions in `CMakeLists.txt` to switch off/on those re
 add_definitions(
     "-DFC_USE_DOUBLE"
     "-DFC_USE_MATPLOTLIB"
-    "-DFC_USE_DEBUG_MSG"
-    "-DFC_USE_INFO_MSG"
-    "-DFC_USE_WARN_MSG"
 )
 ```
 
@@ -98,14 +94,14 @@ add_definitions(
 </div>
 
 ```bash
-[INFO]Fuzzy logic controller info:
-[INFO]=> discourse e:  [-100.000, 100.000], min-max[-3.00, 3.00]
-[INFO]=> discourse ec: [-50.000, 50.000], min-max[-3.00, 3.00]
-[INFO]=> discourse u:  [-60.000, 60.000], min-max[-3.00, 3.00]
-[INFO]=> error quantifying factor [Ke]:             0.0300
-[INFO]=> derivative error quantifying factor [Kec]: 0.0600
-[INFO]=> output scaling factor [Ku]:                8.0000
-[INFO]=> proportional controller [Kp]:              4.2000
+[2024-01-16 22:18:41.579] [info] Fuzzy logic controller info:
+[2024-01-16 22:18:41.579] [info] => discourse  e: [-60.000, 60.000], min-max[-3.00, 3.00]
+[2024-01-16 22:18:41.579] [info] => discourse ec: [-30.000, 30.000], min-max[-3.00, 3.00]
+[2024-01-16 22:18:41.579] [info] => discourse  u: [-15.000, 15.000], min-max[-3.00, 3.00]
+[2024-01-16 22:18:41.579] [info] => error quantifying factor             [Ke]: 0.0500
+[2024-01-16 22:18:41.579] [info] => derivative error quantifying factor [Kec]: 0.1000
+[2024-01-16 22:18:41.579] [info] => output scaling factor                [Ku]: 5.0000
+[2024-01-16 22:18:41.579] [info] => proportional controller              [Kp]: 2.0000
 ```
 
 ### Fuzzy Controller
