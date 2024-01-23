@@ -38,9 +38,7 @@ endif()
 add_compile_options(
     -Wall # print warning info
     -Wextra # print extra warning info
-
-    # -Wconversion # data conversion truncation warning
-    # -Wsign-conversion # sign <-> unsigned conversion warning
+    -pedantic
 )
 
 # build shared option
@@ -71,7 +69,10 @@ find_package(spdlog REQUIRED)
 find_package(Eigen3 3.4 REQUIRED NO_MODULE)
 message(STATUS "Packaged spdlog and Eigen3 library has been found")
 
-target_link_libraries(fuzzy PRIVATE matplotlib_cpp spdlog::spdlog_header_only Eigen3::Eigen)
+target_link_libraries(fuzzy
+    PRIVATE matplotlib_cpp
+    INTERFACE spdlog::spdlog_header_only Eigen3::Eigen)
+
 target_include_directories(
     fuzzy PUBLIC
     ${CMAKE_SOURCE_DIR}/include

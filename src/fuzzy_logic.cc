@@ -44,16 +44,9 @@ void FuzzyLogic::rangeCheck(scalar &input, Membership *membership)
     }
 }
 
-bool FuzzyLogic::controllerSwitchCheck(scalar err, scalar d_err)
+bool FuzzyLogic::controllerSwitchCheck(scalar err)
 {
-    if (err > e->getBound() * switch_ratio_ || err < -e->getBound() * switch_ratio_) {
-        return true;
-    }
-    if (d_err > ec->getBound() * switch_ratio_ || d_err < -ec->getBound() * switch_ratio_) {
-        return true;
-    }
-
-    return false;
+    return (err > e->getBound() * switch_ratio_) || (err < -e->getBound() * switch_ratio_);
 }
 
 static size_t iter = 0;
@@ -74,7 +67,7 @@ scalar FuzzyLogic::algo(const Control_t input, bool use_p_ctrl, const scalar out
         = ec->getFactor() * (fabs(d_err) > ec->getBound() ? sign(err) * ec->getBound() : d_err);
     control_.prev_err = fabs(err) > e->getBound() ? sign(err) * e->getBound() : err;
 
-    if (use_p_ctrl && controllerSwitchCheck(err, d_err)) {
+    if (use_p_ctrl && controllerSwitchCheck(err)) {
         output = p_ctrl->algo(err);
         if (output >= u->getBound() * proportional_u_ratio_) {
             output = u->getBound() * proportional_u_ratio_;

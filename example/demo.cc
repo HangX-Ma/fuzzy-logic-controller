@@ -91,11 +91,12 @@ int main(int argc, char *argv[])
     fuzzy.setSwitchRatio(1.5);
     fuzzy.getInfo();
 
-#define CONTROL_TEST_CONSTANT_TARGET    (0)
-#define CONTROL_TEST_SINE_TARGET        (1)
-#define CONTROL_TEST_USE_P_CONTROLLER   (0)
+#define CONTROL_TEST_CONSTANT_TARGET    (1)
+#define CONTROL_TEST_SINE_TARGET        (0)
+#define CONTROL_TEST_USE_P_CONTROLLER   (1)
 #if CONTROL_TEST_CONSTANT_TARGET
     fc::Control_t control;
+    static const fc::scalar target = 300.0;
     control.target = 300.0;
     control.actual = 0.0;
 
@@ -107,10 +108,12 @@ int main(int argc, char *argv[])
             control.target = -50.0;
         } else if (i == 200) {
             control.target = 40.0;
+        } else {
+            control.target = target + i * 5;
         }
 
         // use forward feedback control
-        control.actual += (control.target - control.actual) * 0.5;
+        control.actual += (control.target - control.actual) * 0.8;
 
         if (CONTROL_TEST_USE_P_CONTROLLER) {
             control.actual += fuzzy.algo(control, true, /*exp^*/0.2);

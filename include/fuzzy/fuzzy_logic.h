@@ -69,7 +69,7 @@ private:
     CentroidPair centroid(size_t rule_id, scalar truncation_premise);
 
     void rangeCheck(scalar &input, Membership *membership);
-    bool controllerSwitchCheck(scalar err, scalar d_err);
+    bool controllerSwitchCheck(scalar err);
 
 private:
     std::vector<Control_t> control_plot_;
